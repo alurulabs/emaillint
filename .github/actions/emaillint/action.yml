@@ -1,0 +1,24 @@
+# Requires @emaillint/cli on npm (post-publish). Pre-publish, run via the
+# .github/workflows/lint.yml workflow or build the CLI from source.
+name: emaillint
+description: Lint HTML emails for client compatibility (runs @emaillint/cli).
+inputs:
+  paths:
+    description: Glob/files to lint, e.g. 'emails/**/*.html'. A single expression (v1).
+    required: true
+  format:
+    description: 'Output format: text or json.'
+    required: false
+    default: text
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+    - name: emaillint
+      shell: bash
+      env:
+        EMAILLINT_PATHS: ${{ inputs.paths }}
+        EMAILLINT_FORMAT: ${{ inputs.format }}
+      run: npx --yes @emaillint/cli "$EMAILLINT_PATHS" --format "$EMAILLINT_FORMAT"

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Compat heavy</title>
+<style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .fl { float: left; }
+  .tf { transform: rotate(5deg); }
+  .anim { animation: spin 2s; transition: all 1s; }
+  .fltr { filter: blur(2px); mix-blend-mode: multiply; }
+  .box { object-fit: cover; overflow: hidden; }
+</style>
+</head>
+<body>
+  <div class="grid">A</div>
+  <div style="display:flex; transform:scale(2); calc(width: 10px)">B</div>
+  <img src="https://example.com/a.png" alt="x" style="aspect-ratio:16/9">
+</body>
+</html>

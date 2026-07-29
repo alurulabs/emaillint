@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+packages/core/tests/fixtures/corpus/real/
+packages/core/reports/
+temp/
+
+# AI assistant tooling — local only, not published
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
+
+# Internal planning/QA docs — local only, not published
+docs/roadmap.md
+docs/calibration.md

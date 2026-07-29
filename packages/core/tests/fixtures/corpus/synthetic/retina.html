@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Retina test</title>
+  <style>
+    .logo { background-image: url("logo-1x.png"); }
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .logo { background-image: url("logo-2x.png"); }
+    }
+  </style>
+</head>
+<body>
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:24px;font-family:Arial,sans-serif;">
+      <div class="logo" style="height:40px;width:120px;">Brand</div>
+      <h1>HiDPI test</h1>
+      <p>Vendor-prefix media query for retina assets.</p>
+    </td></tr>
+  </table>
+</body>
+</html>

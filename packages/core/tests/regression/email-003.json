@@ -1,0 +1,111 @@
+{
+  "score": 40,
+  "issues": [
+    {
+      "ruleId": "CSS_FLEXBOX",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "display:flex is not reliably supported in email clients (especially Outlook).",
+      "line": 15,
+      "column": 3,
+      "suggestion": "Use table-based layout for email."
+    },
+    {
+      "ruleId": "CSS_GRID",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "display: grid is not reliably supported across email clients.",
+      "selector": ".grid",
+      "line": 5,
+      "column": 11
+    },
+    {
+      "ruleId": "CSS_FLOAT",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "float: left is not reliably supported across email clients.",
+      "selector": ".fl",
+      "line": 6,
+      "column": 9
+    },
+    {
+      "ruleId": "CSS_TRANSFORM",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "transform: rotate(5deg) is not reliably supported across email clients.",
+      "selector": ".tf",
+      "line": 7,
+      "column": 9
+    },
+    {
+      "ruleId": "CSS_TRANSFORM",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "transform: scale(2) is not reliably supported across email clients.",
+      "line": 15,
+      "column": 3
+    },
+    {
+      "ruleId": "CSS_TRANSITION",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "transition: all 1s is not reliably supported across email clients.",
+      "selector": ".anim",
+      "line": 8,
+      "column": 31
+    },
+    {
+      "ruleId": "CSS_ANIMATION",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "animation: spin 2s is not reliably supported across email clients.",
+      "selector": ".anim",
+      "line": 8,
+      "column": 11
+    },
+    {
+      "ruleId": "CSS_FILTER",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "filter: blur(2px) is not reliably supported across email clients.",
+      "selector": ".fltr",
+      "line": 9,
+      "column": 11
+    },
+    {
+      "ruleId": "CSS_ASPECT_RATIO",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "aspect-ratio: 16/9 is not reliably supported across email clients.",
+      "line": 16,
+      "column": 3
+    },
+    {
+      "ruleId": "CSS_OBJECT_FIT",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "object-fit: cover is not reliably supported across email clients.",
+      "selector": ".box",
+      "line": 10,
+      "column": 10
+    },
+    {
+      "ruleId": "CSS_MIX_BLEND_MODE",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "mix-blend-mode: multiply is not reliably supported across email clients.",
+      "selector": ".fltr",
+      "line": 9,
+      "column": 30
+    },
+    {
+      "ruleId": "CSS_OVERFLOW",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "overflow: hidden is not reliably supported across email clients.",
+      "selector": ".box",
+      "line": 10,
+      "column": 29
+    }
+  ]
+}

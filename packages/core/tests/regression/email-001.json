@@ -1,0 +1,51 @@
+{
+  "score": 80,
+  "issues": [
+    {
+      "ruleId": "IMG_MISSING_ALT",
+      "severity": "warning",
+      "category": "accessibility",
+      "message": "<img> is missing an alt attribute.",
+      "selector": "img",
+      "line": 5,
+      "column": 3,
+      "suggestion": "Add alt=\"\" for decorative images or a short text description."
+    },
+    {
+      "ruleId": "EMPTY_LINK",
+      "severity": "warning",
+      "category": "quality",
+      "message": "<a> has no usable href.",
+      "selector": "a",
+      "line": 6,
+      "column": 3,
+      "suggestion": "Add a valid href to the link."
+    },
+    {
+      "ruleId": "CSS_BORDER_RADIUS",
+      "severity": "info",
+      "category": "compatibility",
+      "message": "border-radius is not supported by classic Outlook (renders square).",
+      "selector": ".a",
+      "line": 3,
+      "column": 6,
+      "suggestion": "Provide a fallback or accept square corners in Outlook."
+    },
+    {
+      "ruleId": "HTML_MISSING_LANG",
+      "severity": "warning",
+      "category": "accessibility",
+      "message": "<html> is missing a lang attribute.",
+      "line": 2,
+      "column": 1
+    },
+    {
+      "ruleId": "HTML_MISSING_TITLE",
+      "severity": "warning",
+      "category": "accessibility",
+      "message": "<head> is missing a <title>.",
+      "line": 3,
+      "column": 1
+    }
+  ]
+}

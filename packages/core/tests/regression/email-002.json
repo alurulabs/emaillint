@@ -1,0 +1,69 @@
+{
+  "score": 30,
+  "issues": [
+    {
+      "ruleId": "SCRIPT_ELEMENT",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<script> is not supported in email.",
+      "line": 5,
+      "column": 3
+    },
+    {
+      "ruleId": "IFRAME_ELEMENT",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<iframe> is not supported in email.",
+      "line": 6,
+      "column": 3
+    },
+    {
+      "ruleId": "CANVAS_ELEMENT",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<canvas> is not supported in email.",
+      "line": 10,
+      "column": 3
+    },
+    {
+      "ruleId": "FORM_ELEMENTS",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<form> is not supported in email.",
+      "line": 7,
+      "column": 3
+    },
+    {
+      "ruleId": "FORM_ELEMENTS",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<input> is not supported in email.",
+      "line": 7,
+      "column": 9
+    },
+    {
+      "ruleId": "FORM_ELEMENTS",
+      "severity": "error",
+      "category": "invalid",
+      "message": "<button> is not supported in email.",
+      "line": 7,
+      "column": 28
+    },
+    {
+      "ruleId": "VIDEO_ELEMENT",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "<video> is not supported in email.",
+      "line": 8,
+      "column": 3
+    },
+    {
+      "ruleId": "AUDIO_ELEMENT",
+      "severity": "warning",
+      "category": "compatibility",
+      "message": "<audio> is not supported in email.",
+      "line": 9,
+      "column": 3
+    }
+  ]
+}

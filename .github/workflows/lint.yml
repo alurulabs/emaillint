@@ -1,0 +1,21 @@
+name: lint
+on:
+  push:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run build        # builds emaillint-core then @emaillint/cli
+      # Dogfood: prove the CLI passes a clean email AND flags a bad one.
+      # (Two explicit steps so main-branch CI stays green while asserting both
+      # directions — bad.html is intentionally bad.)
+      - name: good.html is clean (CLI exits 0)
+        run: node packages/cli/dist/index.js examples/emails/good.html
+      - name: bad.html is flagged (CLI exits non-zero)
+        run: '! node packages/cli/dist/index.js examples/emails/bad.html'
