@@ -1,7 +1,7 @@
 # Changelog
 
-Notable changes to EmailLint. The engine is pre-stable (`0.9.0`) and not yet
-published to npm; rule IDs and the `analyze()` options shape may change.
+Notable changes to EmailLint. The engine is pre-stable (`0.9.0`); rule IDs and
+the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 

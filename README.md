@@ -46,9 +46,15 @@ getCompatDataVersion();  // "caniemail@<sha> (<date>)" — pinned data snapshot
 
 ## Status
 
-**Pre-stable (0.9.0) — not yet published to npm.** Rule IDs and the `analyze()` options shape are pre-stable and may change.
+**Pre-stable (0.9.0).** Rule IDs and the `analyze()` options shape are pre-stable and may change before 1.0.
 
-To use locally:
+Install:
+
+```bash
+npm install emaillint-core
+```
+
+Or build from source:
 
 ```bash
 git clone <repo-url>   # this repo's URL — left as a placeholder; the repo may move
@@ -56,8 +62,6 @@ cd emaillint
 npm install
 npm run build      # tsc → packages/core/dist
 ```
-
-Then import from `packages/core/dist`, or link the workspace package. The `npm install emaillint-core` form will not work until the package is published.
 
 ## Compatibility data
 
@@ -74,18 +78,22 @@ reports support across ~40 client/platform pairs straight from caniemail.
 Lint emails from the command line:
 
 ```bash
-npm run build                 # builds emaillint-core then @emaillint/cli
-node packages/cli/dist/index.js emails/**/*.html
-node packages/cli/dist/index.js email.html --format json
-node packages/cli/dist/index.js email.html --rule CSS_BORDER_RADIUS=off
+emaillint emails/**/*.html
+emaillint email.html --format json
+emaillint email.html --rule CSS_BORDER_RADIUS=off
+```
+
+Install globally or run one-off:
+
+```bash
+npm install -g @emaillint/cli   # then: emaillint ...
+npx @emaillint/cli email.html   # no install
 ```
 
 Exit code is **1 if any `error`-severity issue** (CI gating); warnings/info
 don't fail. Output formats: `text` (default) and `json` (includes the
 `dataVersion` snapshot). The package name `emaillint` is squatted on npm, so the
-CLI ships as the scoped **`@emaillint/cli`** with bin **`emaillint`** (exposed on
-PATH via `npm i -g @emaillint/cli` once published; not yet published — 0.9.0
-pre-npm).
+CLI ships as the scoped **`@emaillint/cli`** with bin **`emaillint`**.
 
 ## Result shape
 

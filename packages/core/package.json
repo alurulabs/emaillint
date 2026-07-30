@@ -1,7 +1,19 @@
 {
   "name": "emaillint-core",
   "version": "0.9.0",
+  "description": "Deterministic static analysis engine for HTML emails. Finds unsupported or inconsistently-rendered HTML/CSS before you send a campaign.",
   "license": "MIT",
+  "author": "alurulabs",
+  "keywords": ["email", "html-email", "lint", "linter", "static-analysis", "email-client", "compatibility", "outlook"],
+  "homepage": "https://github.com/alurulabs/emaillint#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alurulabs/emaillint.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/alurulabs/emaillint/issues",
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,6 +26,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "corpus": "tsx scripts/corpus.ts",

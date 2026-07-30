@@ -1,12 +1,25 @@
 {
   "name": "@emaillint/cli",
   "version": "0.9.0",
+  "description": "Lint HTML emails from the command line and in CI. Powered by emaillint-core.",
   "license": "MIT",
+  "author": "alurulabs",
+  "keywords": ["email", "html-email", "lint", "linter", "cli", "command-line", "compatibility"],
+  "homepage": "https://github.com/alurulabs/emaillint#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alurulabs/emaillint.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/alurulabs/emaillint/issues",
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
+  "files": ["dist"],
   "type": "module",
   "bin": { "emaillint": "./dist/index.js" },
   "main": "./dist/index.js",
   "dependencies": {
-    "emaillint-core": "*",
+    "emaillint-core": "^0.9.0",
     "tinyglobby": "^0.2.17"
   },
   "devDependencies": {
@@ -17,6 +30,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit"
   }
