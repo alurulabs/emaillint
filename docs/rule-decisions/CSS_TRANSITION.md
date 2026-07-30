@@ -1,6 +1,6 @@
 # CSS_TRANSITION
 
-**Status:** Resolved — keep as `warning`.
+**Status:** Resolved - keep as `warning`.
 **Rule:** `compatibility` · `warning` · since `0.9.0` · [compatibility/css-rules.ts](../../packages/core/src/rules/compatibility/css-rules.ts)
 
 ## What it flags
@@ -17,7 +17,7 @@ Ignored or inconsistently supported across clients; the effect degrades silently
 
 ## Decision: keep as `warning`
 
-Visual-only, silently degrades; keep `warning`. No confirmed-FP class — C3 green (calibration §5).
+Visual-only, silently degrades; keep `warning`. No confirmed-FP class - C3 green (calibration §5).
 
 ## Open questions
 

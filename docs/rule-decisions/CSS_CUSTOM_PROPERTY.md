@@ -1,6 +1,6 @@
 # CSS_CUSTOM_PROPERTY
 
-**Status:** Resolved — keep as `warning`.
+**Status:** Resolved - keep as `warning`.
 **Rule:** `compatibility` · `warning` · since `0.1.0` · [compatibility/custom-property.ts](../../packages/core/src/rules/compatibility/custom-property.ts)
 
 ## What it flags
@@ -17,7 +17,7 @@ The function/custom-property is unsupported in most clients; the value is silent
 
 ## Decision: keep as `warning`
 
-Silently-dropped values are a real authoring risk; keep `warning`. No confirmed-FP class — C3 green (calibration §5).
+Silently-dropped values are a real authoring risk; keep `warning`. No confirmed-FP class - C3 green (calibration §5).
 
 ## Open questions
 

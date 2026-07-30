@@ -1,11 +1,11 @@
 # CSS_BACKGROUND_IMAGE
 
-**Status:** Resolved — keep as `warning`. VML-fallback heuristic implemented 2026-07-27.
+**Status:** Resolved - keep as `warning`. VML-fallback heuristic implemented 2026-07-27.
 **Rule:** `compatibility` · `warning` · since `0.1.0` · [background-image.ts](../../packages/core/src/rules/compatibility/background-image.ts)
 
 ## What it flags
 
-`background-image` declarations, and `background` shorthand declarations containing `url()` or `image()`. Solid-color `background` (e.g. `background:red`) does **not** fire — the rule's regex requires `url(`/`image(`.
+`background-image` declarations, and `background` shorthand declarations containing `url()` or `image()`. Solid-color `background` (e.g. `background:red`) does **not** fire - the rule's regex requires `url(`/`image(`.
 
 ## Compat basis (real)
 

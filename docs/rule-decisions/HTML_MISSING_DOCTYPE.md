@@ -1,6 +1,6 @@
 # HTML_MISSING_DOCTYPE
 
-**Status:** Resolved — keep as `warning`.
+**Status:** Resolved - keep as `warning`.
 **Rule:** `quality` · `warning` · since `0.9.0` · [quality/html-doctype.ts](../../packages/core/src/rules/quality/html-doctype.ts)
 
 ## What it flags
@@ -17,7 +17,7 @@ A structural/semantic correctness issue in the HTML itself.
 
 ## Decision: keep as `warning`
 
-TP when present; keep `warning`. No confirmed-FP class — C3 green (calibration §5).
+TP when present; keep `warning`. No confirmed-FP class - C3 green (calibration §5).
 
 ## Open questions
 

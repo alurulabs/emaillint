@@ -1,6 +1,6 @@
 # CSS_FLEXBOX
 
-**Status:** Resolved — keep as `warning`.
+**Status:** Resolved - keep as `warning`.
 **Rule:** `compatibility` · `warning` · since `0.1.0` · [compatibility/flexbox.ts](../../packages/core/src/rules/compatibility/flexbox.ts)
 
 ## What it flags
@@ -17,7 +17,7 @@ No or patchy support across Outlook (Word engine) and Gmail; the layout property
 
 ## Decision: keep as `warning`
 
-Unsupported layout is a real rendering risk; keep `warning`. No confirmed-FP class — C3 green (calibration §5).
+Unsupported layout is a real rendering risk; keep `warning`. No confirmed-FP class - C3 green (calibration §5).
 
 ## Open questions
 

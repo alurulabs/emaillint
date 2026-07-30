@@ -2,14 +2,16 @@
 
 Deterministic static analysis engine for HTML emails.
 
-Static analysis — no rendering, no test sends, no network. Finds unsupported or
+Static analysis: no rendering, no test sends, no network. Finds unsupported or
 inconsistently-rendered HTML during development, before you send a campaign.
+
+Try it in the browser: **[emaillint.com](https://emaillint.com)** (demo playground).
 
 ## Why EmailLint?
 
 Email HTML is not normal HTML. Many CSS features are unsupported or render
 inconsistently across Outlook, Gmail, Apple Mail and friends. EmailLint catches
-those issues instantly — from the command line and in CI — without rendering emails or
+those issues instantly, from the command line and in CI, without rendering emails or
 sending test campaigns.
 
 Unlike an HTML validator, EmailLint does not check HTML *correctness*. It checks
@@ -17,12 +19,12 @@ email *compatibility*.
 
 ## Features
 
-- **Deterministic** — no AI; same input always yields the same output
-- **No network requests** — runs fully offline
-- **Runs locally** — your HTML never leaves your machine
-- **CI friendly** — structured output for automation
-- **TypeScript** — fully typed public API
-- **Minimal dependencies** — `parse5` + `postcss` only
+- **Deterministic**: no AI; same input always yields the same output
+- **No network requests**: runs fully offline
+- **Runs locally**: your HTML never leaves your machine
+- **CI friendly**: structured output for automation
+- **TypeScript**: fully typed public API
+- **Minimal dependencies**: `parse5` + `postcss` only
 
 ```ts
 import { analyze, getRule, getCompatDataVersion } from "emaillint-core";
@@ -41,7 +43,7 @@ analyze(html, { rules: { CSS_BORDER_RADIUS: "off", BASE64_IMAGE: "warning" } });
 getRule("CSS_FLEXBOX")?.compatibility;
 // { support: [...~40 client/platform entries...], references: [...],
 //   lastTested, dataVersion, alternatives: [...] }
-getCompatDataVersion();  // "caniemail@<sha> (<date>)" — pinned data snapshot
+getCompatDataVersion();  // "caniemail@<sha> (<date>)" - pinned data snapshot
 ```
 
 ## Status
@@ -57,7 +59,7 @@ npm install emaillint-core
 Or build from source:
 
 ```bash
-git clone <repo-url>   # this repo's URL — left as a placeholder; the repo may move
+git clone https://github.com/alurulabs/emaillint.git
 cd emaillint
 npm install
 npm run build      # tsc → packages/core/dist
@@ -67,10 +69,10 @@ npm run build      # tsc → packages/core/dist
 
 Support matrices are **derived** from [caniemail.com](https://www.caniemail.com/):
 a vendored snapshot (pinned caniemail commit) is baked into the build via
-`npm run sync-compat` (`packages/core`) — dev-only, so runtime stays offline and
+`npm run sync-compat` (`packages/core`); dev-only, so runtime stays offline and
 deterministic. Every compatibility finding carries a `dataVersion` (the pinned
 commit) and a `lastTested` date; `getCompatDataVersion()` returns the snapshot
-version. Hand-typed 3-client matrices are gone — a rule like `CSS_FLEXBOX` now
+version. Hand-typed 3-client matrices are gone. A rule like `CSS_FLEXBOX` now
 reports support across ~40 client/platform pairs straight from caniemail.
 
 ## CLI (`@emaillint/cli`)
@@ -173,7 +175,7 @@ Output:
 | `DUPLICATE_ID` | warning |
 | `HTML_MISSING_DOCTYPE` | warning |
 
-**Compatibility (23) — works in some clients**
+**Compatibility (23): works in some clients**
 
 | id | severity |
 |---|---|
@@ -187,7 +189,7 @@ Output:
 | `CSS_ASPECT_RATIO` · `CSS_OBJECT_FIT` · `CSS_OVERFLOW` | warning |
 | `VIDEO_ELEMENT` · `AUDIO_ELEMENT` · `LINK_STYLESHEET` | warning |
 
-**Invalid (6) — blocked/stripped by all major clients**
+**Invalid (6): blocked/stripped by all major clients**
 
 | id | severity |
 |---|---|
@@ -198,7 +200,7 @@ Each rule carries `why` + `howToFix`; compatibility rules carry a per-client sup
 
 ## Compatibility metadata
 
-Every compatibility rule exposes a per-client support matrix — EmailLint doubles
+Every compatibility rule exposes a per-client support matrix. EmailLint doubles
 as a machine-readable email-compatibility database, not just a linter.
 
 ```ts
@@ -230,6 +232,6 @@ npm run typecheck
 
 ## Packages
 
-- `packages/core` — the analysis engine (this repo's focus)
-- `packages/cli` — the `@emaillint/cli` bin (`emaillint`); thin wrapper over core
-- `.github/actions/emaillint` — composite GitHub Action that runs the CLI in CI
+- `packages/core`: the analysis engine (this repo's focus)
+- `packages/cli`: the `@emaillint/cli` bin (`emaillint`); thin wrapper over core
+- `.github/actions/emaillint`: composite GitHub Action that runs the CLI in CI

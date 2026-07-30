@@ -1,6 +1,6 @@
 # HTML_SIZE_EXCEEDED
 
-**Status:** Resolved — keep as `warning`.
+**Status:** Resolved - keep as `warning`.
 **Rule:** `performance` · `warning` · since `0.1.0` · [performance/html-size.ts](../../packages/core/src/rules/performance/html-size.ts)
 
 ## What it flags
@@ -17,7 +17,7 @@ A deliverability or weight cost that harms rendering or triggers client clipping
 
 ## Decision: keep as `warning`
 
-Real cost; keep `warning`. No confirmed-FP class — C3 green (calibration §5).
+Real cost; keep `warning`. No confirmed-FP class - C3 green (calibration §5).
 
 ## Open questions
 

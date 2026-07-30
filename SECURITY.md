@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-EmailLint is **pre-stable (0.9.0)** and not yet published to npm. Security fixes
-land on `main` only — there are no backport branches yet.
+EmailLint is **pre-stable (0.9.0)**. Security fixes land on `main` only - there
+are no backport branches yet.
 
 | Version | Supported |
 |---------|-----------|
@@ -27,7 +27,7 @@ publicly until a fix is released.
 
 ## Scope
 
-EmailLint is a **static analysis engine** — it parses HTML/CSS and reports
+EmailLint is a **static analysis engine** - it parses HTML/CSS and reports
 issues. It makes **no network requests** and runs fully offline.
 
 In scope:
@@ -37,7 +37,7 @@ In scope:
   ReDoS that can be triggered by a crafted email).
 - Weaknesses in the GitHub Action's setup (shell injection, secret exposure).
 
-Out of scope — report these as **regular issues**, not security reports:
+Out of scope - report these as **regular issues**, not security reports:
 
 - A rule that flags the wrong thing, or fails to flag something (a false
   positive / false negative). These are correctness bugs, not security issues.
