@@ -11,7 +11,7 @@ const VERSION = "0.9.0";
 
 const USAGE = `emaillint <paths...> [options]
 
-  --format <text|json>        output format (default: text)
+  --format <text|json|sarif>  output format (default: text)
   --rule <ID>=<LEVEL>         override a rule (LEVEL: off|info|warning|error); repeatable
   --preset <name>             target a client preset (outlook|gmail|apple-mail|yahoo|all)
   --clients <id,id,...>       target specific caniemail client IDs (see: emaillint clients)

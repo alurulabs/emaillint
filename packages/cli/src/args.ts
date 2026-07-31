@@ -13,7 +13,7 @@ export function parseArgs(argv: string[]): CliOptions {
     if (a === "-v" || a === "--version") { opts.version = true; continue; }
     if (a === "--format") {
       const v = argv[++i];
-      if (v !== "text" && v !== "json") throw new UsageError(`--format must be text or json (got ${v ?? "nothing"})`);
+      if (v !== "text" && v !== "json" && v !== "sarif") throw new UsageError(`--format must be text, json, or sarif (got ${v ?? "nothing"})`);
       opts.format = v as Format;
       continue;
     }
