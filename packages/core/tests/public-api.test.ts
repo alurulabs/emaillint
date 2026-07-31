@@ -56,6 +56,8 @@ describe("public API", () => {
 
   it("public value surface is the phase-2 contract (no internal leakage)", () => {
     expect(Object.keys(api).sort()).toEqual([
+      "CLIENT_IDS",
+      "CLIENT_PRESETS",
       "KNOWN_CLIENTS",
       "analyze",
       "getCompatDataVersion",

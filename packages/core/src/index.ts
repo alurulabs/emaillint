@@ -1,6 +1,8 @@
 export { analyze, getRule, getRules } from "./engine.js";
 export { getCompatDataVersion } from "./rules/compat-lookup.js";
+export { CLIENT_IDS, CLIENT_PRESETS } from "./rules/presets.js";
 export { KNOWN_CLIENTS } from "./rules/clients.js";
+export type { ClientId } from "./generated/compat-data.js";
 export type { ClientEntry } from "./rules/clients.js";
 export type {
   AnalysisResult,
