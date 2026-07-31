@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: /packages/core
+    directory: /
     schedule:
       interval: weekly
     groups:
@@ -9,20 +9,3 @@ updates:
         update-types:
           - minor
           - patch
-    ignore:
-      - dependency-name: vitest
-        update-types:
-          - version-update:semver-major
-  - package-ecosystem: npm
-    directory: /packages/cli
-    schedule:
-      interval: weekly
-    groups:
-      npm-minor-patch:
-        update-types:
-          - minor
-          - patch
-    ignore:
-      - dependency-name: vitest
-        update-types:
-          - version-update:semver-major
