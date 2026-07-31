@@ -36,4 +36,13 @@ describe("reporter", () => {
     expect(j.files[1]).toMatchObject({ path: "b.html", score: 85 });
     expect(j.totals).toMatchObject({ files: 2, errors: 2, warnings: 1 }); // script error + readError both count as errors
   });
+
+  it("json: includes clients when present, omits when absent", () => {
+    const withClients: RunResult = { ...rr, clients: ["gmail-desktop-webmail"] };
+    const j1 = JSON.parse(format(withClients, "json"));
+    expect(j1.clients).toEqual(["gmail-desktop-webmail"]);
+
+    const j0 = JSON.parse(format(rr, "json"));
+    expect(j0.clients).toBeUndefined();
+  });
 });

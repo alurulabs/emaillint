@@ -4,7 +4,8 @@ import { getCompatDataVersion } from "emaillint-core";
 
 export function format(rr: RunResult, fmt: Format): string {
   const sorted: FileResult[] = [...rr.results].sort((x, y) => (x.path < y.path ? -1 : x.path > y.path ? 1 : 0));
-  return fmt === "json" ? toJson(sorted) : toText(sorted);
+  if (fmt === "json") return toJson(sorted, rr.clients);
+  return toText(sorted);
 }
 
 function toText(results: FileResult[]): string {
@@ -25,7 +26,7 @@ function toText(results: FileResult[]): string {
   return lines.join("\n");
 }
 
-function toJson(results: FileResult[]): string {
+function toJson(results: FileResult[], clients?: string[]): string {
   let errors = 0, warnings = 0, info = 0;
   const files = results.map((f) => {
     if ("readError" in f) { errors++; return { path: f.path, error: f.readError }; }
@@ -36,9 +37,11 @@ function toJson(results: FileResult[]): string {
     }
     return { path: f.path, score: f.result.score, issues: f.result.issues };
   });
-  return JSON.stringify({
+  const payload: Record<string, unknown> = {
     dataVersion: getCompatDataVersion(),
     files,
     totals: { files: results.length, errors, warnings, info },
-  }, null, 2);
+  };
+  if (clients && clients.length) payload.clients = clients;
+  return JSON.stringify(payload, null, 2);
 }
