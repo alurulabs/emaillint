@@ -74,3 +74,10 @@ function parseClients(spec: string, opts: CliOptions): void {
   if (ids.length === 0) throw new UsageError("--clients requires at least one client ID (see: emaillint clients)");
   addClients(opts, ids);
 }
+
+// Subcommand dispatch: "clients"/"presets" as the first positional arg list
+// valid options. Anything else (paths, flags) returns null. Note: a file
+// literally named "clients" with no extension is not lintable via the CLI.
+export function resolveCommand(arg: string | undefined): "clients" | "presets" | null {
+  return arg === "clients" || arg === "presets" ? arg : null;
+}

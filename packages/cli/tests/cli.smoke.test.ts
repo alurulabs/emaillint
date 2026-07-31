@@ -36,4 +36,16 @@ describe("cli smoke (built bin)", () => {
     const { stdout } = await run(["--help"]);
     expect(stdout).toContain("--format");
   });
+
+  it("'clients' subcommand prints client IDs, exit 0", async () => {
+    const { stdout } = await run(["clients"]);
+    expect(stdout).toContain("gmail-desktop-webmail");
+    expect(stdout.trim().split("\n").length).toBeGreaterThan(5);
+  });
+
+  it("'presets' subcommand prints preset names, exit 0", async () => {
+    const { stdout } = await run(["presets"]);
+    expect(stdout).toContain("outlook");
+    expect(stdout).toContain("all");
+  });
 });

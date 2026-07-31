@@ -1,20 +1,28 @@
 #!/usr/bin/env node
-import { parseArgs, UsageError } from "./args.js";
+import { parseArgs, UsageError, resolveCommand } from "./args.js";
 import { run, NoFilesMatched } from "./run.js";
 import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
+import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
+import type { ClientId } from "emaillint-core";
 
 // Mirror packages/cli/package.json version (single source = bump both on release).
 const VERSION = "0.9.0";
 
 const USAGE = `emaillint <paths...> [options]
 
-  --format <text|json>      output format (default: text)
-  --rule <ID>=<LEVEL>       override a rule (LEVEL: off|info|warning|error); repeatable
-  -h, --help                show help
-  -v, --version             show version`;
+  --format <text|json>        output format (default: text)
+  --rule <ID>=<LEVEL>         override a rule (LEVEL: off|info|warning|error); repeatable
+  --preset <name>             target a client preset (outlook|gmail|apple-mail|yahoo|all)
+  --clients <id,id,...>       target specific caniemail client IDs (see: emaillint clients)
+  -h, --help                  show help
+  -v, --version               show version`;
 
 async function main(): Promise<void> {
+  const sub = resolveCommand(process.argv[2]);
+  if (sub === "clients") { process.stdout.write(`${[...CLIENT_IDS].join("\n")}\n`); process.exit(0); }
+  if (sub === "presets") { process.stdout.write(`${Object.keys(CLIENT_PRESETS).join("\n")}\n`); process.exit(0); }
+
   let opts;
   try {
     opts = parseArgs(process.argv.slice(2));
@@ -28,7 +36,7 @@ async function main(): Promise<void> {
 
   let rr;
   try {
-    rr = await run(opts.paths, opts.rules);
+    rr = await run(opts.paths, { rules: opts.rules, clients: opts.clientIds as ClientId[] });
   } catch (e) {
     if (e instanceof NoFilesMatched) { process.stderr.write(`${e.message}\n`); process.exit(1); }
     process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`);

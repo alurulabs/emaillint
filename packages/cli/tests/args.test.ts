@@ -1,6 +1,6 @@
 // packages/cli/tests/args.test.ts
 import { describe, it, expect } from "vitest";
-import { parseArgs, UsageError } from "../src/args.js";
+import { parseArgs, UsageError, resolveCommand } from "../src/args.js";
 
 describe("parseArgs", () => {
   it("parses positional paths + defaults", () => {
@@ -90,5 +90,12 @@ describe("parseArgs", () => {
     expect(() => parseArgs(["x.html", "--clients", ""])).toThrow(UsageError);
     expect(() => parseArgs(["x.html", "--clients=",])).toThrow(UsageError);
     expect(() => parseArgs(["x.html", "--clients=,,"])).toThrow(UsageError);
+  });
+
+  it("resolveCommand recognizes clients/presets, else null", () => {
+    expect(resolveCommand("clients")).toBe("clients");
+    expect(resolveCommand("presets")).toBe("presets");
+    expect(resolveCommand("x.html")).toBeNull();
+    expect(resolveCommand("--help")).toBeNull();
   });
 });
