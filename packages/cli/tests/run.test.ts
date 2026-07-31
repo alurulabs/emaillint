@@ -30,7 +30,7 @@ describe("run", () => {
   });
 
   it("rule override suppresses a rule", async () => {
-    const rr = await run([join(FX, "dirty.html")], { CSS_FLEXBOX: "off" });
+    const rr = await run([join(FX, "dirty.html")], { rules: { CSS_FLEXBOX: "off" } });
     const r = rr.results[0];
     if (!("readError" in r)) {
       expect(r.result.issues.map((i) => i.ruleId)).not.toContain("CSS_FLEXBOX");
@@ -44,6 +44,16 @@ describe("run", () => {
 
   it("no matches → NoFilesMatched", async () => {
     await expect(run([join(FX, "*.nope")], {})).rejects.toBeInstanceOf(NoFilesMatched);
+  });
+
+  it("passes clients through to the engine and RunResult", async () => {
+    const rr = await run([join(FX, "dirty.html")], { clients: ["gmail-desktop-webmail"] });
+    expect(rr.clients).toEqual(["gmail-desktop-webmail"]);
+    // CSS_FLEXBOX is supported in gmail → suppressed under this filter.
+    const r = rr.results[0];
+    if (!("readError" in r)) {
+      expect(r.result.issues.map((i) => i.ruleId)).not.toContain("CSS_FLEXBOX");
+    }
   });
 
   it("dedupes a literal path that a glob also matches", async () => {

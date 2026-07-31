@@ -19,4 +19,5 @@ export type FileResult = { path: string } & (
 
 export interface RunResult {
   results: FileResult[];
+  clients?: string[];
 }
