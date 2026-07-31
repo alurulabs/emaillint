@@ -35,13 +35,13 @@
     "sync-compat": "tsx scripts/sync-compat.ts"
   },
   "dependencies": {
-    "parse5": "^7.1.2",
+    "parse5": "^8.0.1",
     "postcss": "^8.4.41"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
+    "@types/node": "^26.1.2",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.10"
   }
 }
