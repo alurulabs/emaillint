@@ -52,6 +52,11 @@ async function resolveVersion(): Promise<{ sha: string; date: string }> {
   return { sha: j.sha.slice(0, 7), date: j.commit.committer.date.slice(0, 10) };
 }
 
+// Distinct, sorted caniemail client IDs across all features — drives the generated ClientId union.
+export function clientIdsOf(COMPAT: Record<string, DerivedCompat>): string[] {
+  return [...new Set(Object.values(COMPAT).flatMap((d) => d.support.map((s) => s.client)))].sort();
+}
+
 function emit(artifact: CompatArtifact): string {
   const sorted = Object.keys(artifact.COMPAT).sort();
   const lines: string[] = [
@@ -66,6 +71,8 @@ function emit(artifact: CompatArtifact): string {
     lines.push(`  ${JSON.stringify(slug)}: ${JSON.stringify(artifact.COMPAT[slug])},`);
   }
   lines.push("};");
+  lines.push("");
+  lines.push(`export type ClientId = ${clientIdsOf(artifact.COMPAT).map((c) => JSON.stringify(c)).join(" | ")};`);
   return lines.join("\n") + "\n";
 }
 
