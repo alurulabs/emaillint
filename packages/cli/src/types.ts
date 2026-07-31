@@ -6,6 +6,8 @@ export interface CliOptions {
   paths: string[];
   format: Format;
   rules: Record<string, RuleSetting>;
+  preset?: string;
+  clientIds: string[];
   help: boolean;
   version: boolean;
 }

@@ -46,4 +46,49 @@ describe("parseArgs", () => {
   it("rejects --rule with no value (argv ends)", () => {
     expect(() => parseArgs(["x.html", "--rule"])).toThrow(UsageError);
   });
+
+  it("parses --preset (space form) into clientIds", () => {
+    const o = parseArgs(["x.html", "--preset", "gmail"]);
+    expect(o.preset).toBe("gmail");
+    expect(o.clientIds).toEqual(["gmail-desktop-webmail", "gmail-ios", "gmail-android", "gmail-mobile-webmail"]);
+  });
+
+  it("parses --preset= (equals form)", () => {
+    expect(parseArgs(["x.html", "--preset=outlook"]).clientIds).toContain("outlook-windows");
+  });
+
+  it("rejects unknown --preset", () => {
+    expect(() => parseArgs(["x.html", "--preset", "lotus-notes"])).toThrow(UsageError);
+  });
+
+  it("parses --clients (space form), validates IDs", () => {
+    const o = parseArgs(["x.html", "--clients", "gmail-ios,outlook-windows"]);
+    expect(o.clientIds.sort()).toEqual(["gmail-ios", "outlook-windows"].sort());
+  });
+
+  it("parses --clients= (equals form)", () => {
+    expect(parseArgs(["x.html", "--clients=gmail-android"]).clientIds).toEqual(["gmail-android"]);
+  });
+
+  it("rejects unknown --clients ID", () => {
+    expect(() => parseArgs(["x.html", "--clients", "gmail-forever"])).toThrow(UsageError);
+  });
+
+  it("preset + clients union and dedupe", () => {
+    const o = parseArgs(["x.html", "--preset", "gmail", "--clients", "gmail-ios,outlook-windows"]);
+    expect(o.clientIds.sort()).toEqual([
+      "gmail-android", "gmail-desktop-webmail", "gmail-ios", "gmail-mobile-webmail", "outlook-windows",
+    ].sort());
+  });
+
+  it("rejects --preset / --clients with no value (argv ends)", () => {
+    expect(() => parseArgs(["x.html", "--preset"])).toThrow(UsageError);
+    expect(() => parseArgs(["x.html", "--clients"])).toThrow(UsageError);
+  });
+
+  it("rejects empty --clients value (consistency with --rule=/--preset=)", () => {
+    expect(() => parseArgs(["x.html", "--clients", ""])).toThrow(UsageError);
+    expect(() => parseArgs(["x.html", "--clients=",])).toThrow(UsageError);
+    expect(() => parseArgs(["x.html", "--clients=,,"])).toThrow(UsageError);
+  });
 });
