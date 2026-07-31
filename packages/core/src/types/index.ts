@@ -1,3 +1,5 @@
+import type { ClientId } from "../generated/compat-data.js";
+
 export type Category =
   | "compatibility"
   | "invalid"
@@ -11,6 +13,7 @@ export type RuleSetting = "off" | "info" | "warning" | "error";
 
 export interface AnalyzeOptions {
   rules?: Record<string, RuleSetting>;
+  clients?: ClientId[];
 }
 
 export interface Issue {
@@ -23,6 +26,7 @@ export interface Issue {
   line?: number;
   column?: number;
   suggestion?: string;
+  compatScope?: { status: "unsupported" | "partial" | "unknown" };
 }
 
 export interface EmailContext {
