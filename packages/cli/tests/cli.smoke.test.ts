@@ -48,4 +48,17 @@ describe("cli smoke (built bin)", () => {
     expect(stdout).toContain("outlook");
     expect(stdout).toContain("all");
   });
+
+  it("--format sarif emits a SARIF doc via the CLI entrypoint", async () => {
+    const p = run([join(FX, "dirty.html"), "--format", "sarif"]);
+    await expect(p).rejects.toMatchObject({ code: 1 }); // dirty → exit 1
+    try {
+      await p;
+    } catch (e: unknown) {
+      const doc = JSON.parse((e as { stdout: string }).stdout);
+      expect(doc.version).toBe("2.1.0");
+      expect(doc.runs[0].tool.driver.name).toBe("emaillint");
+      expect(doc.runs[0].results.length).toBeGreaterThan(0);
+    }
+  });
 });

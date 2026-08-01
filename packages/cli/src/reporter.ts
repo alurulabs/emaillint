@@ -58,6 +58,9 @@ const LEVEL_MAP: Record<string, "error" | "warning" | "note"> = {
   info: "note",
 };
 
+// Note: when `p` is outside `base`, `relative()` yields a "../…" URI that GitHub
+// Code Scanning silently drops. Acceptable here (paths come from user globs,
+// typically under the workspace); flagged for future hardening.
 function relativize(p: string): string {
   const base = process.env.GITHUB_WORKSPACE ?? process.cwd();
   return isAbsolute(p) ? relative(base, p) : p;

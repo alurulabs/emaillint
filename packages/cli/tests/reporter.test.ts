@@ -66,6 +66,8 @@ describe("reporter", () => {
       expect(driver.rules.some((r: { id: string }) => r.id === "CSS_BORDER_RADIUS")).toBe(true);
       const br = driver.rules.find((r: { id: string }) => r.id === "CSS_BORDER_RADIUS");
       expect(br.helpUri).toMatch(/^https:\/\//); // compat rule has references
+      expect(br.defaultConfiguration.level).toBe("note"); // CSS_BORDER_RADIUS severity "info" → "note"
+      expect(br.fullDescription.text).toContain("Fix:"); // why + howToFix composed
       const a11y = driver.rules.find((r: { id: string }) => r.id === "IMG_MISSING_ALT");
       expect(a11y.helpUri).toBeUndefined(); // a11y rules have no references
 
