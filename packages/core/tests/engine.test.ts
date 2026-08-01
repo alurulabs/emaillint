@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { analyze, getRule, getRules, validateRules } from "../src/engine.js";
+import { CLIENT_IDS } from "../src/rules/presets.js";
 import type { EmailRule } from "../src/types/index.js";
 
 const base = {
@@ -213,5 +214,15 @@ describe("analyze client filtering", () => {
     const suppressed = analyze(html, { clients: ["gmail-desktop-webmail"] });
     const def = analyze(html);
     expect(suppressed.issues.length).toBeLessThan(def.issues.length);
+  });
+
+  it('"all" preset produces the same issue set as the default (no clients)', () => {
+    // Locks the spec invariant: since no compat feature is universally supported
+    // across all clients, the `all` filter keeps every compat issue — same set as
+    // the default path. If a future snapshot adds a universally-supported feature,
+    // this test fails and flags that `all` no longer equals default.
+    const def = analyze(html);
+    const all = analyze(html, { clients: [...CLIENT_IDS] });
+    expect(all.issues.map((i) => i.ruleId).sort()).toEqual(def.issues.map((i) => i.ruleId).sort());
   });
 });

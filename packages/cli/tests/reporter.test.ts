@@ -1,5 +1,6 @@
 // packages/cli/tests/reporter.test.ts
 import { describe, it, expect } from "vitest";
+import { join } from "node:path";
 import { format } from "../src/reporter.js";
 import type { RunResult } from "../src/types.js";
 
@@ -86,5 +87,20 @@ describe("reporter", () => {
     const err = doc.runs[0].results.find((r: { ruleId?: string; level: string }) => r.ruleId === undefined && r.level === "error");
     expect(err).toBeTruthy();
     expect(err.message.text).toBe("ENOENT: missing");
+  });
+
+  it("sarif: relativizes against cwd when GITHUB_WORKSPACE is unset", () => {
+    const orig = process.env.GITHUB_WORKSPACE;
+    delete process.env.GITHUB_WORKSPACE;
+    try {
+      const rrAbs: RunResult = {
+        results: [{ path: join(process.cwd(), "b.html"), result: { score: 85, issues: rr.results[0].result.issues } }],
+      };
+      const doc = JSON.parse(format(rrAbs, "sarif"));
+      const flex = doc.runs[0].results.find((r: { ruleId: string }) => r.ruleId === "CSS_FLEXBOX");
+      expect(flex.locations[0].physicalLocation.artifactLocation.uri).toBe("b.html");
+    } finally {
+      if (orig !== undefined) process.env.GITHUB_WORKSPACE = orig;
+    }
   });
 });
