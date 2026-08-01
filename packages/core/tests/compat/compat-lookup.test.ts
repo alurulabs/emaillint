@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { compatFor } from "../../src/rules/compat-lookup.js";
+import { compatFor, scopeWorstStatus } from "../../src/rules/compat-lookup.js";
 import type { DerivedCompat } from "../../src/types/index.js";
 
 const COMPAT: Record<string, DerivedCompat> = {
@@ -34,5 +34,26 @@ describe("compatFor", () => {
 
   it("throws on an unknown feature slug (drift guard)", () => {
     expect(() => compatFor(["css-display-flex", "nope"], {}, COMPAT)).toThrow(/unknown feature slug/);
+  });
+});
+
+describe("scopeWorstStatus", () => {
+  const support = [
+    { client: "gmail-desktop-webmail", status: "supported" as const },
+    { client: "outlook-windows", status: "unsupported" as const },
+    { client: "yahoo-desktop-webmail", status: "partial" as const },
+  ];
+
+  it("returns supported when every selected client is supported", () => {
+    expect(scopeWorstStatus(support, ["gmail-desktop-webmail"])).toBe("supported");
+  });
+
+  it("returns the worst status when mixed (unsupported beats partial)", () => {
+    expect(scopeWorstStatus(support, ["gmail-desktop-webmail", "outlook-windows"])).toBe("unsupported");
+    expect(scopeWorstStatus(support, ["gmail-desktop-webmail", "yahoo-desktop-webmail"])).toBe("partial");
+  });
+
+  it("treats an absent client as unknown", () => {
+    expect(scopeWorstStatus(support, ["gmail-desktop-webmail", "samsung-email-android"])).toBe("unknown");
   });
 });

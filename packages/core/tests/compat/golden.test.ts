@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseFeatureFrontMatter } from "../../scripts/compat/parse.js";
 import { deriveSlug } from "../../src/rules/compat-derive.js";
-import { deriveFixtureCompat, COMPAT_SLUGS } from "../../scripts/sync-compat.js";
+import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf } from "../../scripts/sync-compat.js";
 import { COMPAT } from "../../src/generated/compat-data.js";
 
 // A realistic caniemail feature .md (quirky front matter: unquoted keys, trailing commas, notes).
@@ -43,5 +43,24 @@ describe("sync golden (offline)", () => {
 
   it("committed artifact keys == COMPAT_SLUGS (artifact-level drift guard)", () => {
     expect(Object.keys(COMPAT).sort()).toEqual([...COMPAT_SLUGS].sort());
+  });
+});
+
+describe("clientIdsOf", () => {
+  it("returns the sorted union of client keys across features", () => {
+    const COMPAT = {
+      a: {
+        support: [
+          { client: "gmail-ios", status: "supported" },
+          { client: "outlook-windows", status: "unsupported" },
+        ],
+        references: [],
+      },
+      b: {
+        support: [{ client: "gmail-ios", status: "supported" }],
+        references: [],
+      },
+    };
+    expect(clientIdsOf(COMPAT as never)).toEqual(["gmail-ios", "outlook-windows"]);
   });
 });

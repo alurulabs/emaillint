@@ -1,3 +1,5 @@
+import type { ClientId } from "../generated/compat-data.js";
+
 export type Category =
   | "compatibility"
   | "invalid"
@@ -11,6 +13,7 @@ export type RuleSetting = "off" | "info" | "warning" | "error";
 
 export interface AnalyzeOptions {
   rules?: Record<string, RuleSetting>;
+  clients?: ClientId[];
 }
 
 export interface Issue {
@@ -23,6 +26,10 @@ export interface Issue {
   line?: number;
   column?: number;
   suggestion?: string;
+  /** Present only on compatibility issues kept under a client filter (`analyze` `clients` option). */
+  // Object (not a flat string) so future fields (affectedClients, counts) can be added
+  // without a breaking change to this public Issue shape.
+  compatScope?: { status: "unsupported" | "partial" | "unknown" };
 }
 
 export interface EmailContext {
