@@ -1,7 +1,4 @@
-export interface ClientEntry {
-  id: string;
-  label: string;
-}
+import type { ClientEntry } from "../types/index.js";
 
 export const KNOWN_CLIENTS: readonly ClientEntry[] = [
   { id: "outlook-windows", label: "Outlook for Windows" },
