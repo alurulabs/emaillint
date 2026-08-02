@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { parseFeatureFrontMatter } from "../../scripts/compat/parse.js";
 import { deriveSlug } from "../../src/rules/compat-derive.js";
 import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf, parseNicenames, composeClientLabels } from "../../scripts/sync-compat.js";
-import { COMPAT } from "../../src/generated/compat-data.js";
+import { COMPAT, CLIENTS } from "../../src/generated/compat-data.js";
 
 // A realistic caniemail feature .md (quirky front matter: unquoted keys, trailing commas, notes).
 const FLEXBOX_MD = `---
@@ -127,5 +127,18 @@ describe("composeClientLabels", () => {
     // "orphan" is not in the fixture's family map -> label uses the raw slug.
     const labels = composeClientLabels(["orphan-windows"], nice);
     expect(labels[0]).toEqual({ id: "orphan-windows", label: "orphan Windows" });
+  });
+});
+
+describe("generated CLIENTS", () => {
+  it("one labeled entry per client id, sorted, two-token labels", () => {
+    const ids = [...new Set(Object.values(COMPAT).flatMap((d) => d.support.map((s) => s.client)))].sort();
+    expect(CLIENTS.map((c) => c.id)).toEqual(ids);
+    expect(CLIENTS.length).toBeGreaterThan(0);
+    for (const c of CLIENTS) {
+      // Composed labels are "Family Platform" (≥2 tokens); never just the raw id.
+      expect(c.label.split(" ").length).toBeGreaterThanOrEqual(2);
+      expect(c.label).not.toBe(c.id);
+    }
   });
 });
