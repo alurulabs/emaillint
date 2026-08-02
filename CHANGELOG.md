@@ -1,9 +1,23 @@
 # Changelog
 
-Notable changes to EmailLint. The engine is pre-stable (`0.9.0`); rule IDs and
+Notable changes to EmailLint. The engine is pre-stable (`0.10.0`); rule IDs and
 the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
+
+## [0.10.0] - 2026-08-02
+
+### Added
+- **Client presets + scope-aware filtering** (#13) - `analyze(html, { clients })` drops compat issues fully supported across the selected clients; `--preset` / `--clients` CLI flags plus `clients` / `presets` subcommands; generated `ClientId` union.
+- **SARIF 2.1.0 output** (#13) - `--format sarif`, repo-relative paths; GitHub Code Scanning and Azure ready.
+- **Generated `CLIENTS` vocabulary** (#14) - id plus a composed `"Family Platform"` label per caniemail client, generated from `_data/nicenames.yml` by `sync-compat`. IDs and labels now share one source of truth with the compat snapshot. `KNOWN_CLIENTS` is `@deprecated` and will be removed in 1.0.
+
+### Changed
+- `ClientEntry` type moved from `src/rules/clients.ts` into `src/types/index.ts` so the generated module has a stable type to import.
+
+## [0.9.0] - 2026-07-31
+
+Initial public release: 39 rules, tunable severity, structured compatibility metadata, the `@emaillint/cli`, and the GitHub Action.
 
 ### Added
 - **CLI** - `@emaillint/cli` (bin `emaillint`): lint HTML from the command line
@@ -35,9 +49,7 @@ the `analyze()` options shape may change before 1.0.
 - `LINK_EMPTY_TEXT` false positive on links whose only content is an image with
   `alt` text.
 
-## [0.9.0] - 2026-07-22
-
-39 rules; tunable severity; structured compatibility metadata.
+Engine (39 rules; tunable severity; structured compatibility metadata):
 
 - `analyze(html, options?)` - optional `rules` map (`"off"` / `"info"` / `"warning"` / `"error"`).
 - New `invalid` category (error): `SCRIPT_ELEMENT`, `IFRAME_ELEMENT`, `CANVAS_ELEMENT`, `OBJECT_ELEMENT`, `EMBED_ELEMENT`, `FORM_ELEMENTS`.
