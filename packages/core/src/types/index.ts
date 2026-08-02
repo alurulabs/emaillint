@@ -111,6 +111,11 @@ export interface ClientStatus {
   note?: string;
 }
 
+export interface ClientEntry {
+  id: string;
+  label: string;
+}
+
 export interface FeatureData {
   slug: string;
   lastTested?: string;

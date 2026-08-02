@@ -1,8 +1,9 @@
-export interface ClientEntry {
-  id: string;
-  label: string;
-}
+import type { ClientEntry } from "../types/index.js";
 
+/**
+ * @deprecated Divergent hand-maintained IDs that do not match the generated
+ * caniemail vocabulary. Replaced by `CLIENTS` (id + label). Removed in 1.0.
+ */
 export const KNOWN_CLIENTS: readonly ClientEntry[] = [
   { id: "outlook-windows", label: "Outlook for Windows" },
   { id: "outlook-com", label: "Outlook on the web" },

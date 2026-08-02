@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { parseFeatureFrontMatter } from "../../scripts/compat/parse.js";
 import { deriveSlug } from "../../src/rules/compat-derive.js";
-import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf } from "../../scripts/sync-compat.js";
-import { COMPAT } from "../../src/generated/compat-data.js";
+import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf, parseNicenames, composeClientLabels } from "../../scripts/sync-compat.js";
+import { COMPAT, CLIENTS } from "../../src/generated/compat-data.js";
 
 // A realistic caniemail feature .md (quirky front matter: unquoted keys, trailing commas, notes).
 const FLEXBOX_MD = `---
@@ -62,5 +62,83 @@ describe("clientIdsOf", () => {
       },
     };
     expect(clientIdsOf(COMPAT as never)).toEqual(["gmail-ios", "outlook-windows"]);
+  });
+});
+
+const NICENAMES_FIXTURE = `family:
+  outlook: "Outlook"
+  gmail: "Gmail"
+  apple-mail: "Apple Mail"
+platform:
+  desktop-webmail: "Desktop Webmail"
+  macos: "macOS"
+  windows-mail: "Windows Mail"
+  windows: "Windows"
+  webmail: "Webmail"
+support:
+  supported: "Supported"
+category:
+  css: "CSS"
+`;
+
+describe("parseNicenames", () => {
+  it("extracts family + platform maps, ignores other sections", () => {
+    const n = parseNicenames(NICENAMES_FIXTURE);
+    expect(n.family).toEqual({ outlook: "Outlook", gmail: "Gmail", "apple-mail": "Apple Mail" });
+    expect(n.platform).toEqual({
+      "desktop-webmail": "Desktop Webmail",
+      macos: "macOS",
+      "windows-mail": "Windows Mail",
+      windows: "Windows",
+      webmail: "Webmail",
+    });
+  });
+});
+
+describe("composeClientLabels", () => {
+  const nice = parseNicenames(NICENAMES_FIXTURE);
+  it("composes family + platform labels, sorted by id", () => {
+    const labels = composeClientLabels(
+      ["outlook-windows", "gmail-desktop-webmail", "apple-mail-macos"],
+      nice,
+    );
+    expect(labels).toEqual([
+      { id: "apple-mail-macos", label: "Apple Mail macOS" },
+      { id: "gmail-desktop-webmail", label: "Gmail Desktop Webmail" },
+      { id: "outlook-windows", label: "Outlook Windows" },
+    ]);
+  });
+  it("picks the longest matching platform suffix (windows-mail vs windows)", () => {
+    const labels = composeClientLabels(["outlook-windows-mail", "outlook-windows"], nice);
+    const byId = Object.fromEntries(labels.map((l) => [l.id, l.label]));
+    expect(byId["outlook-windows-mail"]).toBe("Outlook Windows Mail");
+    expect(byId["outlook-windows"]).toBe("Outlook Windows");
+  });
+  it("throws when no platform suffix matches (drift guard)", () => {
+    expect(() => composeClientLabels(["orphan-no-platform"], nice)).toThrow(/cannot split client id/);
+  });
+  it("prefers the longer platform suffix (desktop-webmail over webmail)", () => {
+    // gmail-desktop-webmail ends in both -webmail and -desktop-webmail;
+    // the longer match must win so family = "gmail", not "gmail-desktop".
+    const labels = composeClientLabels(["gmail-desktop-webmail"], nice);
+    expect(labels[0]).toEqual({ id: "gmail-desktop-webmail", label: "Gmail Desktop Webmail" });
+  });
+  it("falls back to the raw family slug when it is absent from nicenames", () => {
+    // "orphan" is not in the fixture's family map -> label uses the raw slug.
+    const labels = composeClientLabels(["orphan-windows"], nice);
+    expect(labels[0]).toEqual({ id: "orphan-windows", label: "orphan Windows" });
+  });
+});
+
+describe("generated CLIENTS", () => {
+  it("one labeled entry per client id, sorted, two-token labels", () => {
+    const ids = [...new Set(Object.values(COMPAT).flatMap((d) => d.support.map((s) => s.client)))].sort();
+    expect(CLIENTS.map((c) => c.id)).toEqual(ids);
+    expect(CLIENTS.length).toBeGreaterThan(0);
+    for (const c of CLIENTS) {
+      // Composed labels are "Family Platform" (≥2 tokens); never just the raw id.
+      expect(c.label.split(" ").length).toBeGreaterThanOrEqual(2);
+      expect(c.label).not.toBe(c.id);
+    }
   });
 });
