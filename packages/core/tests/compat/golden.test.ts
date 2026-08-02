@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseFeatureFrontMatter } from "../../scripts/compat/parse.js";
 import { deriveSlug } from "../../src/rules/compat-derive.js";
-import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf } from "../../scripts/sync-compat.js";
+import { deriveFixtureCompat, COMPAT_SLUGS, clientIdsOf, parseNicenames } from "../../scripts/sync-compat.js";
 import { COMPAT } from "../../src/generated/compat-data.js";
 
 // A realistic caniemail feature .md (quirky front matter: unquoted keys, trailing commas, notes).
@@ -62,5 +62,33 @@ describe("clientIdsOf", () => {
       },
     };
     expect(clientIdsOf(COMPAT as never)).toEqual(["gmail-ios", "outlook-windows"]);
+  });
+});
+
+const NICENAMES_FIXTURE = `family:
+  outlook: "Outlook"
+  gmail: "Gmail"
+  apple-mail: "Apple Mail"
+platform:
+  desktop-webmail: "Desktop Webmail"
+  macos: "macOS"
+  windows-mail: "Windows Mail"
+  windows: "Windows"
+support:
+  supported: "Supported"
+category:
+  css: "CSS"
+`;
+
+describe("parseNicenames", () => {
+  it("extracts family + platform maps, ignores other sections", () => {
+    const n = parseNicenames(NICENAMES_FIXTURE);
+    expect(n.family).toEqual({ outlook: "Outlook", gmail: "Gmail", "apple-mail": "Apple Mail" });
+    expect(n.platform).toEqual({
+      "desktop-webmail": "Desktop Webmail",
+      macos: "macOS",
+      "windows-mail": "Windows Mail",
+      windows: "Windows",
+    });
   });
 });

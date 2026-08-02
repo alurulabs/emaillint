@@ -57,6 +57,34 @@ export function clientIdsOf(COMPAT: Record<string, DerivedCompat>): string[] {
   return [...new Set(Object.values(COMPAT).flatMap((d) => d.support.map((s) => s.client)))].sort();
 }
 
+// caniemail `_data/nicenames.yml` — only the family: and platform: maps are needed.
+// Hand-parsed (tiny, regular file) to avoid adding a YAML dependency.
+export interface Nicenames {
+  family: Record<string, string>;
+  platform: Record<string, string>;
+}
+
+export function parseNicenames(yml: string): Nicenames {
+  const family: Record<string, string> = {};
+  const platform: Record<string, string> = {};
+  let section: "family" | "platform" | null = null;
+  for (const raw of yml.split(/\r?\n/)) {
+    const sec = raw.match(/^(\w+):\s*$/);
+    if (sec) {
+      section = sec[1] === "family" || sec[1] === "platform" ? (sec[1] as "family" | "platform") : null;
+      continue;
+    }
+    if (!section) continue;
+    const entry = raw.match(/^\s+([A-Za-z][\w-]*):\s*"?(.*?)"?\s*$/);
+    if (entry) {
+      const [, key, val] = entry;
+      if (section === "family") family[key] = val;
+      else platform[key] = val;
+    }
+  }
+  return { family, platform };
+}
+
 function emit(artifact: CompatArtifact): string {
   const sorted = Object.keys(artifact.COMPAT).sort();
   const lines: string[] = [
