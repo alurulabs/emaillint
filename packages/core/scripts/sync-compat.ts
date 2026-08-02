@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseFeatureFrontMatter } from "./compat/parse.js";
 import { deriveSlug } from "../src/rules/compat-derive.js";
-import type { DerivedCompat } from "../src/types/index.js";
+import type { DerivedCompat, ClientEntry } from "../src/types/index.js";
 
 // Pin to a caniemail commit SHA (set in Step 6 after the first run). Runtime never fetches.
 const CANIEMAIL_REF = "770fc00";
@@ -83,6 +83,31 @@ export function parseNicenames(yml: string): Nicenames {
     }
   }
   return { family, platform };
+}
+
+// Compose a "Family Platform" label per client id. Longest platform suffix wins
+// so `desktop-webmail` is preferred over `webmail`, `windows-mail` over `windows`.
+// Throws on an unresolvable id so snapshot drift surfaces at sync time.
+export function composeClientLabels(ids: readonly string[], nice: Nicenames): ClientEntry[] {
+  const platforms = Object.keys(nice.platform);
+  return [...ids]
+    .map((id): ClientEntry => {
+      let best: { family: string; platform: string } | null = null;
+      for (const p of platforms) {
+        const suffix = "-" + p;
+        if (id.endsWith(suffix)) {
+          const family = id.slice(0, id.length - suffix.length);
+          if (family && (!best || p.length > best.platform.length)) {
+            best = { family, platform: p };
+          }
+        }
+      }
+      if (!best) throw new Error(`sync: cannot split client id "${id}" — no known platform suffix`);
+      const fam = nice.family[best.family] ?? best.family;
+      const plat = nice.platform[best.platform] ?? best.platform;
+      return { id, label: `${fam} ${plat}` };
+    })
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
 function emit(artifact: CompatArtifact): string {
