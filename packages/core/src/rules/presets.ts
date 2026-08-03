@@ -1,11 +1,9 @@
+import { CLIENTS } from "../generated/compat-data.js";
 import type { ClientId } from "../generated/compat-data.js";
-import { COMPAT } from "../generated/compat-data.js";
 
-// Every caniemail client ID seen in the snapshot. Derived (not hand-maintained)
-// so it can never drift from the generated ClientId union.
-export const CLIENT_IDS: readonly ClientId[] = [
-  ...new Set(Object.values(COMPAT).flatMap((d) => d.support.map((s) => s.client))),
-].sort() as ClientId[];
+// Every caniemail client ID, sourced from the generated CLIENTS list (the
+// canonical id+label table) so there is a single derivation, not a parallel one.
+export const CLIENT_IDS: readonly ClientId[] = CLIENTS.map((c) => c.id as ClientId);
 
 // Friendly preset names -> caniemail client IDs. `all` == CLIENT_IDS (== no filtering).
 export const CLIENT_PRESETS: Record<string, readonly ClientId[]> = {
