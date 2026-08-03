@@ -1,6 +1,6 @@
 # Changelog
 
-Notable changes to EmailLint. The engine is pre-stable (`0.10.0`); rule IDs and
+Notable changes to EmailLint. The engine is pre-stable; rule IDs and
 the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
