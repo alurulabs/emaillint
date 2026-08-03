@@ -5,6 +5,20 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-03
+
+Breaking: removes the deprecated `KNOWN_CLIENTS` export and tightens
+`ClientStatus.client` from `string` to `ClientId`. First of the pre-1.0
+client-vocabulary cleanup; the engine remains pre-stable.
+
+### Removed
+- **`KNOWN_CLIENTS`** (#18) - the deprecated hand-maintained client list (`packages/core/src/rules/clients.ts`) and its public export. Its ids (`outlook-com`, `gmail-web`, etc.) were divergent and never matched the generated vocabulary, and the list was never wired to any code path. The public client surface is now `ClientId`, `ClientEntry`, `CLIENTS`, `CLIENT_IDS`, `CLIENT_PRESETS`.
+
+### Changed
+- **`ClientStatus.client` typed as `ClientId`** (#18) - was `string`; `ClientId` is now the only client-id type. Sits on a type-only cycle between `types/index.ts` and `generated/compat-data.ts` (both `import type`, erased at runtime).
+- **`CLIENT_IDS` sourced from generated `CLIENTS`** (#18) - was a parallel `COMPAT` flatMap derivation; now a single source of truth for the id set.
+- Both packages bumped 0.10.0 to 0.11.0; the cli workspace dependency `emaillint-core` moves `^0.10.0` to `^0.11.0`.
+
 ## [0.10.0] - 2026-08-02
 
 ### Added
