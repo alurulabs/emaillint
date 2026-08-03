@@ -1,0 +1,55 @@
+name: release
+
+# Publishing is tag-triggered. Pushing vX.Y.Z builds both packages, asserts the
+# tag matches the package versions and the CHANGELOG, publishes core then cli to
+# npm via Trusted Publishing (OIDC, tokenless) with provenance, and cuts the
+# GitHub Release from the CHANGELOG. Requires the npm Trusted Publisher config
+# for each package (repo=alurulabs/emaillint, workflow=release.yml).
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write   # create the GitHub Release from the tag
+  id-token: write   # npm Trusted Publishing (OIDC) + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - name: Upgrade npm (Trusted Publishing needs >=11.5.1)
+        run: npm install -g npm@latest
+      - run: npm ci
+      - run: npm run build
+      - name: Verify version + CHANGELOG
+        run: |
+          CORE=$(jq -r .version packages/core/package.json)
+          CLI=$(jq -r .version packages/cli/package.json)
+          TAG=${GITHUB_REF#refs/tags/v}
+          if [ "$CORE" != "$TAG" ] || [ "$CLI" != "$TAG" ] || [ "$CORE" != "$CLI" ]; then
+            echo "::error::version mismatch: core=$CORE cli=$CLI tag=$TAG"
+            exit 1
+          fi
+          if ! grep -q "## \[$CORE\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG missing entry for [$CORE]; add it before tagging"
+            exit 1
+          fi
+          echo "versions ok: core=cli=$CORE (tag $TAG), CHANGELOG present"
+      - name: Publish emaillint-core
+        run: npm publish --provenance --access public --workspace emaillint-core
+      - name: Publish @emaillint/cli
+        run: npm publish --provenance --access public --workspace @emaillint/cli
+      - name: GitHub Release
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VER=${TAG#v}
+          NOTES=$(awk -v ver="## [$VER]" 'index($0,ver)==1{found=1; next} /^## \[/{found=0} found{print}' CHANGELOG.md)
+          gh release create "$TAG" --title "$TAG" --notes "$NOTES"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
