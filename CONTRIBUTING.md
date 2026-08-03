@@ -1,6 +1,6 @@
 # Contributing to EmailLint
 
-EmailLint is **pre-stable (0.9.0)**. Contributions are welcome, but two things
+EmailLint is **pre-stable (0.10.0)**. Contributions are welcome, but two things
 may still change before 1.0:
 
 - **Rule IDs** (`CSS_FLEXBOX`, `IMG_MISSING_ALT`, …) may be renamed.

@@ -2,13 +2,13 @@
 
 ## Supported versions
 
-EmailLint is **pre-stable (0.9.0)**. Security fixes land on `main` only - there
+EmailLint is **pre-stable (0.10.0)**. Security fixes land on `main` only - there
 are no backport branches yet.
 
 | Version | Supported |
 |---------|-----------|
-| `main` (0.9.x) | ✅ |
-| < 0.9.0 | ❌ |
+| `main` (0.10.x) | ✅ |
+| < 0.10.0 | ❌ |
 
 ## Reporting a vulnerability
 

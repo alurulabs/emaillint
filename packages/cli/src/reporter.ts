@@ -2,9 +2,7 @@
 import type { RunResult, Format, FileResult } from "./types.js";
 import { relative, isAbsolute } from "node:path";
 import { getCompatDataVersion, getRules } from "emaillint-core";
-
-// Mirror packages/cli/package.json + src/index.ts version.
-const VERSION = "0.9.0";
+import { VERSION } from "./version.js";
 const REPO_URL = "https://github.com/alurulabs/emaillint";
 
 export function format(rr: RunResult, fmt: Format): string {

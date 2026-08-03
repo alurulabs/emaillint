@@ -5,9 +5,7 @@ import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
 import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
 import type { ClientId } from "emaillint-core";
-
-// Mirror packages/cli/package.json version (single source = bump both on release).
-const VERSION = "0.9.0";
+import { VERSION } from "./version.js";
 
 const USAGE = `emaillint <paths...> [options]
 
