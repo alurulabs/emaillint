@@ -39,9 +39,9 @@ describe("compatFor", () => {
 
 describe("scopeWorstStatus", () => {
   const support = [
-    { client: "gmail-desktop-webmail", status: "supported" as const },
-    { client: "outlook-windows", status: "unsupported" as const },
-    { client: "yahoo-desktop-webmail", status: "partial" as const },
+    { client: "gmail-desktop-webmail" as const, status: "supported" as const },
+    { client: "outlook-windows" as const, status: "unsupported" as const },
+    { client: "yahoo-desktop-webmail" as const, status: "partial" as const },
   ];
 
   it("returns supported when every selected client is supported", () => {

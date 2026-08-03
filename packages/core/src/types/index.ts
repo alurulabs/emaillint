@@ -106,7 +106,7 @@ export interface Reference {
 }
 
 export interface ClientStatus {
-  client: string;
+  client: ClientId;
   status: ClientSupport;
   note?: string;
 }
