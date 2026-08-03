@@ -19,9 +19,10 @@ describe("deriveSlug", () => {
       b: { p: { "1": "n" } },
       c: { p: { "1": "a" } },
     }));
-    expect(d.support.find((s) => s.client === "a-p")?.status).toBe("supported");
-    expect(d.support.find((s) => s.client === "b-p")?.status).toBe("unsupported");
-    expect(d.support.find((s) => s.client === "c-p")?.status).toBe("partial");
+    // Synthetic ids ("a-p" etc.) are not real ClientIds; compare as strings.
+    expect(d.support.find((s) => (s.client as string) === "a-p")?.status).toBe("supported");
+    expect(d.support.find((s) => (s.client as string) === "b-p")?.status).toBe("unsupported");
+    expect(d.support.find((s) => (s.client as string) === "c-p")?.status).toBe("partial");
   });
 
   it("forms references from the slug", () => {

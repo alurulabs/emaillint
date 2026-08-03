@@ -1,4 +1,5 @@
 import type { FeatureData, DerivedCompat, ClientStatus, ClientSupport, Reference } from "../types/index.js";
+import type { ClientId } from "../generated/compat-data.js";
 
 const STATUS_MAP: Record<string, ClientSupport> = {
   y: "supported",
@@ -27,7 +28,7 @@ export function deriveSlug(data: FeatureData): DerivedCompat {
       const lastKey = keys[keys.length - 1];
       const { status, noteRef } = splitStatus(versions[lastKey]);
       const note = noteRef ? data.notesByNum[noteRef] : undefined;
-      support.push({ client: `${client}-${platform}`, status, note });
+      support.push({ client: `${client}-${platform}` as ClientId, status, note });
     }
   }
   return { support, references, lastTested: data.lastTested };

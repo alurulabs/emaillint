@@ -59,7 +59,6 @@ describe("public API", () => {
       "CLIENTS",
       "CLIENT_IDS",
       "CLIENT_PRESETS",
-      "KNOWN_CLIENTS",
       "analyze",
       "getCompatDataVersion",
       "getRule",

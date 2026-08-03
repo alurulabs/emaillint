@@ -1,6 +1,6 @@
 {
   "name": "emaillint-core",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Deterministic static analysis engine for HTML emails. Finds unsupported or inconsistently-rendered HTML/CSS before you send a campaign.",
   "license": "MIT",
   "author": "alurulabs",

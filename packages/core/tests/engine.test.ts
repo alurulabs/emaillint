@@ -19,7 +19,7 @@ const compatBase = {
   category: "compatibility" as const,
   features: ["css-display-flex"],
   compatibility: {
-    support: [{ client: "gmail-web", status: "unsupported" as const }],
+    support: [{ client: "gmail-desktop-webmail" as const, status: "unsupported" as const }],
     references: [{ title: "t", url: "https://x.example" }],
   },
 };
@@ -78,7 +78,7 @@ describe("validateRules", () => {
           category: "compatibility",
           features: ["css-display-flex"],
           compatibility: {
-            support: [{ client: "gmail-web", status: "unsupported" }],
+            support: [{ client: "gmail-desktop-webmail" as const, status: "unsupported" }],
             references: [{ title: "t", url: "http://x" }],
           },
         },
