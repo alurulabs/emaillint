@@ -48,7 +48,7 @@ getCompatDataVersion();  // "caniemail@<sha> (<date>)" - pinned data snapshot
 
 ## Status
 
-**Pre-stable (0.9.0).** Rule IDs and the `analyze()` options shape are pre-stable and may change before 1.0.
+**Pre-stable (0.10.0).** Rule IDs and the `analyze()` options shape are pre-stable and may change before 1.0.
 
 Install:
 
