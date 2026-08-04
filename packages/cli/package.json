@@ -16,7 +16,7 @@
   "publishConfig": { "access": "public" },
   "files": ["dist"],
   "type": "module",
-  "bin": { "emaillint": "./dist/index.js" },
+  "bin": { "emaillint": "dist/index.js" },
   "main": "./dist/index.js",
   "dependencies": {
     "emaillint-core": "^0.12.0",
