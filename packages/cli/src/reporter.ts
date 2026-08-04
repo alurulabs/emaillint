@@ -1,5 +1,5 @@
 // packages/cli/src/reporter.ts
-import type { RunResult, Format, FileResult } from "./types.js";
+import type { RunResult, Format, FileResult, BaselineOutcome } from "./types.js";
 import { relative, isAbsolute } from "node:path";
 import { getCompatDataVersion, getRules } from "emaillint-core";
 import { VERSION } from "./version.js";
@@ -7,13 +7,27 @@ const REPO_URL = "https://github.com/alurulabs/emaillint";
 
 export function format(rr: RunResult, fmt: Format): string {
   const sorted: FileResult[] = [...rr.results].sort((x, y) => (x.path < y.path ? -1 : x.path > y.path ? 1 : 0));
-  if (fmt === "json") return toJson(sorted, rr.clients);
-  if (fmt === "sarif") return toSarif(sorted, rr.clients);
-  return toText(sorted);
+  if (fmt === "json") return toJson(sorted, rr.clients, rr.baseline);
+  if (fmt === "sarif") return toSarif(sorted, rr.clients, rr.baseline);
+  return toText(sorted, rr.baseline);
 }
 
-function toText(results: FileResult[]): string {
+function toText(results: FileResult[], baseline?: BaselineOutcome): string {
   const lines: string[] = [];
+  if (baseline?.mode === "check") {
+    for (const f of results) {
+      if ("readError" in f) lines.push(`${f.path}:  error: ${f.readError}`);
+    }
+    for (const ne of baseline.newErrors) {
+      const s = ne.sample;
+      const loc = s.line ? `${s.line}:${s.column ?? 1}  ` : "";
+      const xn = ne.count > 1 ? `  x${ne.count}` : "";
+      lines.push(`${ne.path}:${loc}${s.ruleId}  new  ${s.message}${xn}  (example location)`);
+    }
+    lines.push(`${baseline.newErrors.length} new error(s); ${baseline.suppressed} known (suppressed)`);
+    if (baseline.compatWarning) lines.push(`warning: ${baseline.compatWarning}`);
+    return lines.join("\n");
+  }
   let errors = 0, warnings = 0, info = 0;
   for (const f of results) {
     if ("readError" in f) { lines.push(`${f.path}:  error: ${f.readError}`); errors++; continue; }
@@ -30,7 +44,7 @@ function toText(results: FileResult[]): string {
   return lines.join("\n");
 }
 
-function toJson(results: FileResult[], clients?: string[]): string {
+function toJson(results: FileResult[], clients?: string[], baseline?: BaselineOutcome): string {
   let errors = 0, warnings = 0, info = 0;
   const files = results.map((f) => {
     if ("readError" in f) { errors++; return { path: f.path, error: f.readError }; }
@@ -47,6 +61,15 @@ function toJson(results: FileResult[], clients?: string[]): string {
     totals: { files: results.length, errors, warnings, info },
   };
   if (clients && clients.length) payload.clients = clients;
+  if (baseline) {
+    payload.baseline = {
+      mode: baseline.mode,
+      newErrors: baseline.newErrors,
+      suppressed: baseline.suppressed,
+      ...(baseline.compatWarning ? { compatWarning: baseline.compatWarning } : {}),
+      ...(baseline.writtenPath ? { writtenPath: baseline.writtenPath } : {}),
+    };
+  }
   return JSON.stringify(payload, null, 2);
 }
 
@@ -64,7 +87,7 @@ function relativize(p: string): string {
   return isAbsolute(p) ? relative(base, p) : p;
 }
 
-function toSarif(results: FileResult[], _clients?: string[]): string {
+function toSarif(results: FileResult[], _clients?: string[], baseline?: BaselineOutcome): string {
   const rules = getRules().map((r) => {
     const descriptor: Record<string, unknown> = {
       id: r.id,
@@ -81,7 +104,29 @@ function toSarif(results: FileResult[], _clients?: string[]): string {
   });
 
   const sarifResults: Record<string, unknown>[] = [];
-  for (const f of results) {
+  if (baseline?.mode === "check") {
+    for (const f of results) {
+      if ("readError" in f) {
+        sarifResults.push({
+          level: "error",
+          message: { text: f.readError },
+          locations: [{ physicalLocation: { artifactLocation: { uri: relativize(f.path) } } }],
+        });
+      }
+    }
+    for (const ne of baseline.newErrors) {
+      const s = ne.sample;
+      const loc = { physicalLocation: { artifactLocation: { uri: relativize(ne.path) } } } as Record<string, unknown>;
+      if (s.line) (loc.physicalLocation as Record<string, unknown>).region = { startLine: s.line, startColumn: s.column ?? 1 };
+      sarifResults.push({
+        ruleId: s.ruleId,
+        level: LEVEL_MAP[s.severity],
+        message: { text: `${s.message}${ne.count > 1 ? ` (x${ne.count}, example location)` : ""}` },
+        locations: [loc],
+      });
+    }
+  } else {
+    for (const f of results) {
     if ("readError" in f) {
       sarifResults.push({
         level: "error",
@@ -100,6 +145,7 @@ function toSarif(results: FileResult[], _clients?: string[]): string {
         locations: [loc],
       });
     }
+  }
   }
 
   return JSON.stringify({

@@ -106,3 +106,56 @@ describe("reporter", () => {
     }
   });
 });
+
+describe("format: baseline", () => {
+  const scriptSample = { ruleId: "SCRIPT_ELEMENT", severity: "error", category: "invalid", message: "<script> not supported.", line: 3, column: 1 };
+  const newErr = { path: "t.html", fingerprint: "SCRIPT_ELEMENT#script#", count: 2, sample: scriptSample };
+  const baselineRR = {
+    results: [{ path: "t.html", result: { score: 50, issues: [scriptSample] } }],
+    baseline: { mode: "check" as const, newErrors: [newErr], suppressed: 4 },
+  };
+
+  it("text: marks new errors with xN and reports suppressed count", () => {
+    const out = format(baselineRR as never, "text");
+    expect(out).toContain("new");
+    expect(out).toContain("x2");
+    expect(out).toContain("4 known (suppressed)");
+  });
+
+  it("json: keeps totals as full run + additive baseline block", () => {
+    const json = JSON.parse(format(baselineRR as never, "json"));
+    expect(json.totals.errors).toBe(1); // full current run has 1 error issue
+    expect(json.baseline.newErrors).toHaveLength(1);
+    expect(json.baseline.suppressed).toBe(4);
+  });
+
+  it("sarif: emits only new errors under baseline", () => {
+    const sarif = JSON.parse(format(baselineRR as never, "sarif"));
+    expect(sarif.runs[0].results).toHaveLength(1);
+  });
+
+  it("text: surfaces compatWarning when present", () => {
+    const rr = { ...baselineRR, baseline: { ...baselineRR.baseline, compatWarning: "compat data drifted" } };
+    expect(format(rr as never, "text")).toContain("compat data drifted");
+  });
+
+  it("text: renders readError entries alongside new errors under baseline", () => {
+    const rr = {
+      results: [{ path: "gone.html", readError: "ENOENT: gone" }],
+      baseline: { mode: "check" as const, newErrors: [newErr], suppressed: 4 },
+    };
+    const out = format(rr as never, "text");
+    expect(out).toContain("gone.html:  error: ENOENT: gone");
+  });
+
+  it("sarif: readError entries appear in results under baseline", () => {
+    const rr = {
+      results: [{ path: "gone.html", readError: "ENOENT: gone" }],
+      baseline: { mode: "check" as const, newErrors: [newErr], suppressed: 4 },
+    };
+    const sarif = JSON.parse(format(rr as never, "sarif"));
+    const err = sarif.runs[0].results.find((r: { message?: { text?: string } }) => r.message?.text === "ENOENT: gone");
+    expect(err).toBeTruthy();
+    expect(err.level).toBe("error");
+  });
+});

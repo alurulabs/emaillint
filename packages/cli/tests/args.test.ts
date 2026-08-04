@@ -99,3 +99,31 @@ describe("parseArgs", () => {
     expect(resolveCommand("--help")).toBeNull();
   });
 });
+
+describe("parseArgs: baseline flags", () => {
+  it("--baseline <path> sets baselinePath", () => {
+    const o = parseArgs(["--baseline", "b.json", "a.html"]);
+    expect(o.baselinePath).toBe("b.json");
+    expect(o.paths).toEqual(["a.html"]);
+    expect(o.updateBaselinePath).toBeUndefined();
+  });
+  it("--baseline=<path> form", () => {
+    const o = parseArgs(["--baseline=b.json", "a.html"]);
+    expect(o.baselinePath).toBe("b.json");
+  });
+  it("--baseline with no path throws", () => {
+    expect(() => parseArgs(["--baseline", "a.html"])).not.toThrow(); // "a.html" IS the path here
+    expect(() => parseArgs(["--baseline"])).toThrow(/requires a path/);
+  });
+  it("--update-baseline <path> sets updateBaselinePath", () => {
+    const o = parseArgs(["--update-baseline", "u.json", "a.html"]);
+    expect(o.updateBaselinePath).toBe("u.json");
+    expect(o.paths).toEqual(["a.html"]);
+  });
+  it("--update-baseline with no path throws", () => {
+    expect(() => parseArgs(["--update-baseline"])).toThrow(/requires a path/);
+  });
+  it("--baseline and --update-baseline together is a usage error", () => {
+    expect(() => parseArgs(["--baseline=x.json", "--update-baseline=y.json", "a.html"])).toThrow(/mutually exclusive/);
+  });
+});

@@ -3,6 +3,7 @@ import { parseArgs, UsageError, resolveCommand } from "./args.js";
 import { run, NoFilesMatched } from "./run.js";
 import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
+import { runBaseline, BaselineNotFoundError, BaselineScopeError, BaselineParseError } from "./baseline.js";
 import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
 import type { ClientId } from "emaillint-core";
 import { VERSION } from "./version.js";
@@ -13,6 +14,8 @@ const USAGE = `emaillint <paths...> [options]
   --rule <ID>=<LEVEL>         override a rule (LEVEL: off|info|warning|error); repeatable
   --preset <name>             target a client preset (outlook|gmail|apple-mail|yahoo|all)
   --clients <id,id,...>       target specific caniemail client IDs (see: emaillint clients)
+  --baseline <path>           fail CI only on new errors vs a committed baseline snapshot
+  --update-baseline <path>    write/refresh the baseline snapshot
   -h, --help                  show help
   -v, --version               show version`;
 
@@ -32,14 +35,39 @@ async function main(): Promise<void> {
   if (opts.version) { process.stdout.write(`${VERSION}\n`); process.exit(0); }
   if (opts.paths.length === 0) { process.stderr.write(`${USAGE}\n`); process.exit(2); }
 
+  const isUpdate = opts.updateBaselinePath !== undefined;
+  const isCheck = opts.baselinePath !== undefined;
+
   let rr;
   try {
-    rr = await run(opts.paths, { rules: opts.rules, clients: opts.clientIds as ClientId[] });
+    rr = await run(opts.paths, { rules: opts.rules, clients: opts.clientIds as ClientId[], collectCtx: isUpdate || isCheck });
   } catch (e) {
     if (e instanceof NoFilesMatched) { process.stderr.write(`${e.message}\n`); process.exit(1); }
     process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`);
     process.exit(2);
   }
+
+  if (isUpdate || isCheck) {
+    const baselinePath = (isUpdate ? opts.updateBaselinePath : opts.baselinePath) as string;
+    let outcome;
+    try {
+      outcome = await runBaseline(
+        { mode: isUpdate ? "update" : "check", baselinePath, clients: opts.clientIds },
+        rr,
+      );
+    } catch (e) {
+      if (e instanceof BaselineNotFoundError || e instanceof BaselineScopeError || e instanceof BaselineParseError) {
+        process.stderr.write(`${e.message}\n`);
+        process.exit(2);
+      }
+      throw e;
+    }
+    if (outcome.mode === "update" && outcome.writtenPath) {
+      process.stderr.write(`wrote baseline to ${outcome.writtenPath}\n`);
+    }
+    rr.baseline = outcome;
+  }
+
   process.stdout.write(`${format(rr, opts.format)}\n`);
   process.exit(exitCode(rr));
 }

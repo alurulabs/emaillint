@@ -32,7 +32,8 @@
     "corpus": "tsx scripts/corpus.ts",
     "labeled": "tsx scripts/labeled.ts",
     "scoring-sim": "tsx scripts/scoring-sim.ts",
-    "sync-compat": "tsx scripts/sync-compat.ts"
+    "sync-compat": "tsx scripts/sync-compat.ts",
+    "baseline-probe": "tsx scripts/baseline-identity-probe.ts"
   },
   "dependencies": {
     "parse5": "^8.0.1",
