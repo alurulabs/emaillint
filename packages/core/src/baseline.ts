@@ -65,9 +65,28 @@ export function fingerprint(ctx: EmailContext, issue: Issue): string {
   return `${issue.ruleId}`;
 }
 
-// placeholder exports so the module compiles; implemented in later tasks
-export function createBaseline(_files: AnalyzedFile[], _opts?: { clients?: ClientId[] }): BaselineFile {
-  throw new Error("not implemented");
+export function createBaseline(files: AnalyzedFile[], opts?: { clients?: ClientId[] }): BaselineFile {
+  const out: BaselineFile = {
+    version: BASELINE_VERSION,
+    fingerprintVersion: FINGERPRINT_VERSION,
+    compatDataVersion: getCompatDataVersion(),
+    files: {},
+  };
+  if (opts?.clients?.length) out.clients = [...opts.clients].sort();
+  const paths = [...files].sort((x, y) => (x.path < y.path ? -1 : x.path > y.path ? 1 : 0));
+  for (const f of paths) {
+    const counts = new Map<string, number>();
+    for (const is of f.issues) {
+      if (is.severity !== "error") continue;
+      const fp = fingerprint(f.ctx, is);
+      counts.set(fp, (counts.get(fp) ?? 0) + 1);
+    }
+    if (counts.size === 0) continue;
+    const sorted: Record<string, number> = {};
+    for (const fp of [...counts.keys()].sort()) sorted[fp] = counts.get(fp)!;
+    out.files[f.path] = sorted;
+  }
+  return out;
 }
 export function diffAgainstBaseline(_files: AnalyzedFile[], _baseline: BaselineFile): { newErrors: NewError[]; suppressed: number } {
   throw new Error("not implemented");

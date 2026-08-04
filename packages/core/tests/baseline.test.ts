@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildEmailContext } from "../src/parser/context.js";
-import { fingerprint } from "../src/baseline.js";
+import { fingerprint, createBaseline } from "../src/baseline.js";
 import type { Issue } from "../src/types/index.js";
 
 const mkIssue = (over: Partial<Issue> & { ruleId: string }): Issue => ({
@@ -39,5 +39,43 @@ describe("fingerprint", () => {
     // col 21: parse5 1-indexes columns, and the first <img src="logo.png"> is 20 chars wide.
     const b = mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 21 });
     expect(fingerprint(ctx, a)).toBe(fingerprint(ctx, b));
+  });
+});
+
+describe("createBaseline", () => {
+  const ctx = buildEmailContext(`<img src="a.png"><img src="a.png"><script>x</script>`);
+  const issues: Issue[] = [
+    mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 1 }),
+    mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 18 }),
+    mkIssue({ ruleId: "SCRIPT_ELEMENT", severity: "error", category: "invalid", line: 1, column: 35 }),
+    mkIssue({ ruleId: "SOME_WARNING", severity: "warning", line: 1, column: 1 }),
+  ];
+
+  it("fingerprints only error-severity issues, counts duplicates", () => {
+    const b = createBaseline([{ path: "t.html", issues, ctx }]);
+    expect(b.files["t.html"]).toEqual({ "IMG_MISSING_ALT#img#src=a.png": 2, "SCRIPT_ELEMENT#script#": 1 });
+  });
+
+  it("omits files with zero errors", () => {
+    const b = createBaseline([{ path: "clean.html", issues: [], ctx }]);
+    expect(b.files).toEqual({});
+  });
+
+  it("sorts fingerprints and file paths (deterministic output)", () => {
+    const b = createBaseline([
+      { path: "z.html", issues: [mkIssue({ ruleId: "B_EL", line: 1, column: 1 })], ctx: buildEmailContext(`<b></b>`) },
+      { path: "a.html", issues: [mkIssue({ ruleId: "A_EL", line: 1, column: 1 })], ctx: buildEmailContext(`<a></a>`) },
+    ]);
+    expect(Object.keys(b.files)).toEqual(["a.html", "z.html"]);
+  });
+
+  it("sets version, fingerprintVersion, compatDataVersion; clients only when passed", () => {
+    const b = createBaseline([{ path: "t.html", issues, ctx }]);
+    expect(b.version).toBe(1);
+    expect(b.fingerprintVersion).toBe(1);
+    expect(typeof b.compatDataVersion).toBe("string");
+    expect(b.clients).toBeUndefined();
+    const bc = createBaseline([{ path: "t.html", issues, ctx }], { clients: ["gmail-ios", "gmail-desktop-webmail"] as never });
+    expect(bc.clients).toEqual(["gmail-desktop-webmail", "gmail-ios"]); // sorted
   });
 });
