@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { writeFile, mkdir, rm, readFile } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, relative } from "node:path";
 import { runBaseline, BaselineNotFoundError, BaselineScopeError } from "../src/baseline.js";
 import { run } from "../src/run.js";
@@ -67,5 +69,48 @@ describe("runBaseline: client-scope guard", () => {
     await writeFile(htmlPath, htmlWithScript);
     await runBaseline({ mode: "update", baselinePath, clients: ["gmail-ios"] }, await rr());
     await expect(runBaseline({ mode: "check", baselinePath }, await rr())).rejects.toBeInstanceOf(BaselineScopeError);
+  });
+});
+
+// End-to-end through the built CLI binary (dist/index.js). The dist is built by
+// `npm run build` before the suite runs (same convention as cli.smoke.test.ts).
+function cli(args: string[]): { code: number; stdout: string; stderr: string } {
+  const bin = join(import.meta.dirname, "..", "dist", "index.js");
+  try {
+    const stdout = execFileSync(process.execPath, [bin, ...args], { encoding: "utf8", cwd: dir });
+    return { code: 0, stdout, stderr: "" };
+  } catch (e) {
+    const err = e as { stdout?: string; stderr?: string; status?: number };
+    return { code: err.status ?? 1, stdout: err.stdout ?? "", stderr: err.stderr ?? "" };
+  }
+}
+
+describe("CLI baseline end-to-end (subprocess)", () => {
+  it("generate -> check (green) -> add error (red) -> update -> check (green)", () => {
+    const baselineFile = join(dir, "bl.json");
+    writeFileSync(htmlPath, `<script>x</script>`);
+    // generate (update) -> exit 0
+    let r = cli(["--update-baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(0);
+    // check: green (the script is baselined)
+    r = cli(["--baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(0);
+    // add a second script -> new error -> red
+    writeFileSync(htmlPath, `<script>x</script><script>y</script>`);
+    r = cli(["--baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(1);
+    expect(r.stdout).toContain("new");
+    // update absorbs it -> green
+    r = cli(["--update-baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(0);
+    r = cli(["--baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(0);
+  });
+
+  it("missing baseline -> exit 2", () => {
+    writeFileSync(htmlPath, `<script>x</script>`);
+    const r = cli(["--baseline", join(dir, "nope.json"), htmlPath]);
+    expect(r.code).toBe(2);
+    expect(r.stderr.toLowerCase()).toContain("not found");
   });
 });
