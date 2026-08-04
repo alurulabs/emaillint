@@ -52,7 +52,7 @@ export function fingerprint(ctx: EmailContext, issue: Issue): string {
         .sort()
         .map((k) => `${k.toLowerCase()}=${el.attributes[k]}`)
         .join("&");
-      return `${issue.ruleId}#${el.tagName}#${attrs}`;
+      return `${issue.ruleId}#${el.tagName.toLowerCase()}#${attrs}`;
     }
     const decl = ctx.cssDeclarations.find((d) => d.line === issue.line && d.column === issue.column);
     if (decl) {
