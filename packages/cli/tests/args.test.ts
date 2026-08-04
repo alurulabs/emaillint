@@ -101,25 +101,29 @@ describe("parseArgs", () => {
 });
 
 describe("parseArgs: baseline flags", () => {
-  it("--baseline sets baselinePath to default when no path given", () => {
-    const o = parseArgs(["a.html", "--baseline"]);
-    expect(o.baselinePath).toBe(".emaillint-baseline.json");
-    expect(o.paths).toEqual(["a.html"]);
-    expect(o.updateBaselinePath).toBeUndefined();
-  });
-  it("--baseline <path> uses the given path", () => {
+  it("--baseline <path> sets baselinePath", () => {
     const o = parseArgs(["--baseline", "b.json", "a.html"]);
     expect(o.baselinePath).toBe("b.json");
+    expect(o.paths).toEqual(["a.html"]);
+    expect(o.updateBaselinePath).toBeUndefined();
   });
   it("--baseline=<path> form", () => {
     const o = parseArgs(["--baseline=b.json", "a.html"]);
     expect(o.baselinePath).toBe("b.json");
   });
-  it("--update-baseline sets updateBaselinePath", () => {
-    const o = parseArgs(["a.html", "--update-baseline"]);
-    expect(o.updateBaselinePath).toBe(".emaillint-baseline.json");
+  it("--baseline with no path throws", () => {
+    expect(() => parseArgs(["--baseline", "a.html"])).not.toThrow(); // "a.html" IS the path here
+    expect(() => parseArgs(["--baseline"])).toThrow(/requires a path/);
+  });
+  it("--update-baseline <path> sets updateBaselinePath", () => {
+    const o = parseArgs(["--update-baseline", "u.json", "a.html"]);
+    expect(o.updateBaselinePath).toBe("u.json");
+    expect(o.paths).toEqual(["a.html"]);
+  });
+  it("--update-baseline with no path throws", () => {
+    expect(() => parseArgs(["--update-baseline"])).toThrow(/requires a path/);
   });
   it("--baseline and --update-baseline together is a usage error", () => {
-    expect(() => parseArgs(["--baseline", "--update-baseline", "a.html"])).toThrow(/mutually exclusive/);
+    expect(() => parseArgs(["--baseline=x.json", "--update-baseline=y.json", "a.html"])).toThrow(/mutually exclusive/);
   });
 });

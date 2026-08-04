@@ -5,12 +5,6 @@ import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
 
 export class UsageError extends Error {}
 
-function peekNext(argv: string[], i: number): string | undefined {
-  const v = argv[i + 1];
-  if (v === undefined || v.startsWith("--")) return undefined;
-  return v;
-}
-
 export function parseArgs(argv: string[]): CliOptions {
   const opts: CliOptions = { paths: [], format: "text", rules: {}, clientIds: [], help: false, version: false, baselinePath: undefined, updateBaselinePath: undefined };
   for (let i = 0; i < argv.length; i++) {
@@ -52,16 +46,18 @@ export function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     if (a.startsWith("--clients=")) { parseClients(a.slice("--clients=".length), opts); continue; }
-    // --- baseline flags (optional path argument; default .emaillint-baseline.json) ---
+    // --- baseline flags (required path argument, no default) ---
     if (a === "--baseline") {
-      const v = peekNext(argv, i);
-      if (v !== undefined) { opts.baselinePath = v; i++; } else opts.baselinePath = ".emaillint-baseline.json";
+      const v = argv[++i];
+      if (v === undefined) throw new UsageError("--baseline requires a path");
+      opts.baselinePath = v;
       continue;
     }
     if (a.startsWith("--baseline=")) { opts.baselinePath = a.slice("--baseline=".length); continue; }
     if (a === "--update-baseline") {
-      const v = peekNext(argv, i);
-      if (v !== undefined) { opts.updateBaselinePath = v; i++; } else opts.updateBaselinePath = ".emaillint-baseline.json";
+      const v = argv[++i];
+      if (v === undefined) throw new UsageError("--update-baseline requires a path");
+      opts.updateBaselinePath = v;
       continue;
     }
     if (a.startsWith("--update-baseline=")) { opts.updateBaselinePath = a.slice("--update-baseline=".length); continue; }
