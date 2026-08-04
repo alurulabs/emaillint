@@ -41,15 +41,32 @@ jobs:
             exit 1
           fi
           echo "versions ok: core=cli=$CORE (tag $TAG), CHANGELOG present"
-      - name: Publish emaillint-core
-        run: npm publish --provenance --access public --workspace emaillint-core
-      - name: Publish @emaillint/cli
-        run: npm publish --provenance --access public --workspace @emaillint/cli
-      - name: GitHub Release
+      - name: Publish emaillint-core (skip if already published)
+        run: |
+          VER=$(jq -r .version packages/core/package.json)
+          if npm view emaillint-core@"$VER" version >/dev/null 2>&1; then
+            echo "emaillint-core@$VER already published - skipping"
+          else
+            npm publish --provenance --access public --workspace emaillint-core
+          fi
+      - name: Publish @emaillint/cli (skip if already published)
+        run: |
+          VER=$(jq -r .version packages/cli/package.json)
+          if npm view @emaillint/cli@"$VER" version >/dev/null 2>&1; then
+            echo "@emaillint/cli@$VER already published - skipping"
+          else
+            npm publish --provenance --access public --workspace @emaillint/cli
+          fi
+      - name: GitHub Release (create or update)
         run: |
           TAG=${GITHUB_REF#refs/tags/}
           VER=${TAG#v}
           NOTES=$(awk -v ver="## [$VER]" 'index($0,ver)==1{found=1; next} /^## \[/{found=0} found{print}' CHANGELOG.md)
-          gh release create "$TAG" --title "$TAG" --notes "$NOTES"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG exists - updating notes"
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" --title "$TAG" --notes "$NOTES"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
