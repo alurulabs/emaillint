@@ -23,8 +23,8 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
-      - name: Upgrade npm (Trusted Publishing needs >=11.5.1)
-        run: npm install -g npm@latest
+      - name: Pin npm to 11 (Trusted Publishing needs >=11.5.1; npm@latest is now 12, which needs Node 22+)
+        run: npm install -g npm@11
       - run: npm ci
       - run: npm run build
       - name: Verify version + CHANGELOG
