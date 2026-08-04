@@ -5,6 +5,23 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+### Added
+- **Baseline mode** - `--baseline <path>` / `--update-baseline <path>` (CLI) and
+  `createBaseline` / `diffAgainstBaseline` / `parseBaseline` (core). CI fails
+  only on error-severity issues not present in a committed snapshot, unlocking
+  adoption on legacy email codebases. Identity is an allowlist semantic
+  fingerprint (`ruleId` + tag + stable attributes, or `ruleId` + CSS
+  selector/property/value); the diff is count-based, so it catches duplicate-adds
+  a de-duplicating set would mask. `fingerprintVersion` tracks the identity
+  algorithm independently of the file schema. Errors only (mirrors `exitCode`);
+  client-scope guard fails closed; `compatDataVersion` drift warns. See
+  `docs/superpowers/specs/2026-08-03-baseline-mode-design.md`.
+
+### Changed
+- **`buildEmailContext` now exported** from `emaillint-core` - the baseline layer
+  re-parses each file to fingerprint its issues (the double-parse tradeoff; marked
+  `ponytail:` in `run.ts`).
+
 ## [0.11.0] - 2026-08-03
 
 Breaking: removes the deprecated `KNOWN_CLIENTS` export and tightens
