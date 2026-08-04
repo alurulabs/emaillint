@@ -5,6 +5,8 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-04
+
 ### Added
 - **Baseline mode** - `--baseline <path>` / `--update-baseline <path>` (CLI) and
   `createBaseline` / `diffAgainstBaseline` / `parseBaseline` (core). CI fails
