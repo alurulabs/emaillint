@@ -56,15 +56,30 @@ describe("public API", () => {
 
   it("public value surface is the phase-2 contract (no internal leakage)", () => {
     expect(Object.keys(api).sort()).toEqual([
+      "BASELINE_VERSION",
       "CLIENTS",
       "CLIENT_IDS",
       "CLIENT_PRESETS",
+      "FINGERPRINT_VERSION",
       "analyze",
+      "createBaseline",
+      "diffAgainstBaseline",
       "getCompatDataVersion",
       "getRule",
       "getRules",
+      "parseBaseline",
     ]);
     expect(typeof api.getCompatDataVersion).toBe("function");
     expect(api.getCompatDataVersion()).toMatch(/^caniemail@/); // real snapshot, not a stub
+  });
+});
+
+describe("public api: baseline", () => {
+  it("exports baseline API", () => {
+    expect(typeof api.createBaseline).toBe("function");
+    expect(typeof api.diffAgainstBaseline).toBe("function");
+    expect(typeof api.parseBaseline).toBe("function");
+    expect(api.BASELINE_VERSION).toBe(1);
+    expect(api.FINGERPRINT_VERSION).toBe(1);
   });
 });
