@@ -88,8 +88,29 @@ export function createBaseline(files: AnalyzedFile[], opts?: { clients?: ClientI
   }
   return out;
 }
-export function diffAgainstBaseline(_files: AnalyzedFile[], _baseline: BaselineFile): { newErrors: NewError[]; suppressed: number } {
-  throw new Error("not implemented");
+export function diffAgainstBaseline(
+  files: AnalyzedFile[],
+  baseline: BaselineFile,
+): { newErrors: NewError[]; suppressed: number } {
+  const newErrors: NewError[] = [];
+  let suppressed = 0;
+  for (const f of files) {
+    const base = baseline.files[f.path] ?? {};
+    const cur = new Map<string, { count: number; sample: Issue }>();
+    for (const is of f.issues) {
+      if (is.severity !== "error") continue;
+      const fp = fingerprint(f.ctx, is);
+      const ex = cur.get(fp);
+      if (ex) ex.count++;
+      else cur.set(fp, { count: 1, sample: is });
+    }
+    for (const [fp, { count, sample }] of cur) {
+      const baseCount = base[fp] ?? 0;
+      if (count > baseCount) newErrors.push({ path: f.path, fingerprint: fp, count: count - baseCount, sample });
+      suppressed += Math.min(count, baseCount);
+    }
+  }
+  return { newErrors, suppressed };
 }
 export function parseBaseline(_input: unknown): BaselineFile {
   throw new Error("not implemented");

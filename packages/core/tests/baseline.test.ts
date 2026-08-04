@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { buildEmailContext } from "../src/parser/context.js";
-import { fingerprint, createBaseline } from "../src/baseline.js";
+import { fingerprint, createBaseline, diffAgainstBaseline } from "../src/baseline.js";
+import type { BaselineFile } from "../src/baseline.js";
 import type { Issue } from "../src/types/index.js";
 
 const mkIssue = (over: Partial<Issue> & { ruleId: string }): Issue => ({
@@ -77,5 +78,60 @@ describe("createBaseline", () => {
     expect(b.clients).toBeUndefined();
     const bc = createBaseline([{ path: "t.html", issues, ctx }], { clients: ["gmail-ios", "gmail-desktop-webmail"] as never });
     expect(bc.clients).toEqual(["gmail-desktop-webmail", "gmail-ios"]); // sorted
+  });
+});
+
+describe("diffAgainstBaseline", () => {
+  const ctx = buildEmailContext(`<img src="a.png"><img src="a.png">`);
+  const twoImgs: Issue[] = [
+    mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 1 }),
+    mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 18 }),
+  ];
+
+  it("no new errors when current matches baseline count", () => {
+    const baseline = createBaseline([{ path: "t.html", issues: twoImgs, ctx }]);
+    const d = diffAgainstBaseline([{ path: "t.html", issues: twoImgs, ctx }], baseline);
+    expect(d.newErrors).toEqual([]);
+    expect(d.suppressed).toBe(2);
+  });
+
+  it("duplicate-add (count increase) is caught; a Set would mask it", () => {
+    const three = buildEmailContext(`<img src="a.png"><img src="a.png"><img src="a.png">`);
+    const threeImgs: Issue[] = [
+      mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 1 }),
+      mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 18 }),
+      mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 35 }),
+    ];
+    const baseline = createBaseline([{ path: "t.html", issues: twoImgs, ctx }]);
+    const d = diffAgainstBaseline([{ path: "t.html", issues: threeImgs, ctx: three }], baseline);
+    expect(d.newErrors).toHaveLength(1);
+    expect(d.newErrors[0].count).toBe(1);
+    expect(d.newErrors[0].fingerprint).toBe("IMG_MISSING_ALT#img#src=a.png");
+    expect(d.newErrors[0].sample.ruleId).toBe("IMG_MISSING_ALT");
+    expect(d.suppressed).toBe(2);
+  });
+
+  it("fixing one of N: 0 new, suppressed shrinks", () => {
+    const one = buildEmailContext(`<img src="a.png">`);
+    const oneImg: Issue[] = [mkIssue({ ruleId: "IMG_MISSING_ALT", line: 1, column: 1 })];
+    const baseline = createBaseline([{ path: "t.html", issues: twoImgs, ctx }]);
+    const d = diffAgainstBaseline([{ path: "t.html", issues: oneImg, ctx: one }], baseline);
+    expect(d.newErrors).toEqual([]);
+    expect(d.suppressed).toBe(1);
+  });
+
+  it("new file (not in baseline): all current errors are new", () => {
+    const baseline: BaselineFile = { version: 1, fingerprintVersion: 1, files: {} };
+    const d = diffAgainstBaseline([{ path: "new.html", issues: twoImgs, ctx }], baseline);
+    expect(d.newErrors).toHaveLength(1);
+    expect(d.newErrors[0].count).toBe(2);
+    expect(d.suppressed).toBe(0);
+  });
+
+  it("cross-file isolation: same fingerprint in two files does not mask", () => {
+    const baseline = createBaseline([{ path: "a.html", issues: twoImgs, ctx }]);
+    const d = diffAgainstBaseline([{ path: "b.html", issues: twoImgs, ctx }], baseline);
+    expect(d.newErrors).toHaveLength(1); // b.html is new, both flagged
+    expect(d.suppressed).toBe(0);
   });
 });
