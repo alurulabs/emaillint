@@ -39,7 +39,10 @@ export interface NewError {
 // coarser but still count-correct identity.
 // ponytail: CSS declaration lookup by line:col is ambiguous for multiple inline
 // declarations sharing one line; deterministic across runs so baseline matching
-// holds, only debuggability of the string suffers. Upgrade path: ladder.
+// holds, only debuggability of the string suffers. Id selectors contain "#"
+// (e.g. div#main), colliding with the "#" joiner - same fail-safe direction as
+// the "&"-in-value collision (false collision = masked duplicate = false
+// negative). Upgrade path: ladder.
 export function fingerprint(ctx: EmailContext, issue: Issue): string {
   // Document-level issues carry no position; skip positional lookup entirely,
   // otherwise undefined === undefined would match auto-inserted elements
@@ -49,7 +52,7 @@ export function fingerprint(ctx: EmailContext, issue: Issue): string {
     if (el) {
       const attrs = Object.keys(el.attributes)
         .filter((k) => ALLOWLIST.has(k.toLowerCase()))
-        .sort()
+        .sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0))
         .map((k) => `${k.toLowerCase()}=${el.attributes[k]}`)
         .join("&");
       return `${issue.ruleId}#${el.tagName.toLowerCase()}#${attrs}`;

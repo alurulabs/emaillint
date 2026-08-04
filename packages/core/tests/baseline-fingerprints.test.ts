@@ -75,4 +75,19 @@ describe("fingerprint compatibility contract", () => {
     const ctx = buildEmailContext(`<style>p { color : red ; }</style>`);
     expect(fingerprint(ctx, cssIssueAt(ctx, (d) => d.property === "color"))).toBe(`${T}#p#color#red`);
   });
+
+  // SVG is XML foreign content. parse5 emitted lowercase attr keys (source was
+  // lowercase, so no case change observable); sorted alphabetically by key.
+  it("SVG foreign content: attribute case preserved by parse5", () => {
+    const ctx = buildEmailContext(`<svg><rect width="10" height="5"/></svg>`);
+    expect(fingerprint(ctx, issueAt(ctx, (e) => e.tagName === "rect"))).toBe(`${T}#rect#height=5&width=10`);
+  });
+
+  // CSS string escape (backslash-escape of U+2014). postcss keeps the escape
+  // literal as "\2014" (not decoded to the codepoint); the declaration value
+  // retains the surrounding quotes from the source.
+  it("CSS escaping: backslash-escape preserved verbatim by postcss", () => {
+    const ctx = buildEmailContext(`<style>p { content: "\\2014"; }</style>`);
+    expect(fingerprint(ctx, cssIssueAt(ctx, (d) => d.property === "content"))).toBe(`${T}#p#content#"\\2014"`);
+  });
 });
