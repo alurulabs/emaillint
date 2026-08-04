@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildEmailContext } from "../src/parser/context.js";
-import { fingerprint, createBaseline, diffAgainstBaseline } from "../src/baseline.js";
+import { fingerprint, createBaseline, diffAgainstBaseline, parseBaseline } from "../src/baseline.js";
 import type { BaselineFile } from "../src/baseline.js";
 import type { Issue } from "../src/types/index.js";
 
@@ -133,5 +133,30 @@ describe("diffAgainstBaseline", () => {
     const d = diffAgainstBaseline([{ path: "b.html", issues: twoImgs, ctx }], baseline);
     expect(d.newErrors).toHaveLength(1); // b.html is new, both flagged
     expect(d.suppressed).toBe(0);
+  });
+});
+
+describe("parseBaseline", () => {
+  it("round-trips a valid baseline", () => {
+    const original = createBaseline([{ path: "t.html", issues: [mkIssue({ ruleId: "SCRIPT_ELEMENT", category: "invalid", line: 1, column: 1 })], ctx: buildEmailContext(`<script>x</script>`) }]);
+    const parsed = parseBaseline(JSON.parse(JSON.stringify(original)));
+    expect(parsed).toEqual(original);
+  });
+
+  it("throws on unsupported version", () => {
+    expect(() => parseBaseline({ version: 2, fingerprintVersion: 1, files: {} })).toThrow(/Unsupported baseline version 2/);
+  });
+
+  it("throws on unsupported fingerprintVersion", () => {
+    expect(() => parseBaseline({ version: 1, fingerprintVersion: 2, files: {} })).toThrow(/fingerprintVersion 2/);
+  });
+
+  it("throws on missing/invalid files shape", () => {
+    expect(() => parseBaseline({ version: 1, fingerprintVersion: 1 })).toThrow(/missing files/);
+    expect(() => parseBaseline({ version: 1, fingerprintVersion: 1, files: { a: { fp: "not-a-number" } } })).toThrow(/not a non-negative integer/);
+  });
+
+  it("throws on non-object input", () => {
+    expect(() => parseBaseline("nope")).toThrow(/not an object/);
   });
 });

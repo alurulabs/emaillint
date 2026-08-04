@@ -112,6 +112,24 @@ export function diffAgainstBaseline(
   }
   return { newErrors, suppressed };
 }
-export function parseBaseline(_input: unknown): BaselineFile {
-  throw new Error("not implemented");
+export function parseBaseline(input: unknown): BaselineFile {
+  if (typeof input !== "object" || input === null) throw new Error("Invalid baseline: not an object");
+  const o = input as Record<string, unknown>;
+  if (o.version !== BASELINE_VERSION) throw new Error(`Unsupported baseline version ${o.version}. Regenerate with --update-baseline.`);
+  if (o.fingerprintVersion !== FINGERPRINT_VERSION) throw new Error(`Unsupported baseline fingerprintVersion ${o.fingerprintVersion}. Regenerate with --update-baseline.`);
+  if (typeof o.files !== "object" || o.files === null) throw new Error("Invalid baseline: missing files");
+  for (const [path, entries] of Object.entries(o.files as Record<string, unknown>)) {
+    if (typeof entries !== "object" || entries === null) throw new Error(`Invalid baseline: files["${path}"] is not an object`);
+    for (const [fp, c] of Object.entries(entries as Record<string, unknown>)) {
+      if (typeof c !== "number" || !Number.isInteger(c) || c < 0) throw new Error(`Invalid baseline: files["${path}"]["${fp}"] is not a non-negative integer`);
+    }
+  }
+  const out: BaselineFile = {
+    version: BASELINE_VERSION,
+    fingerprintVersion: FINGERPRINT_VERSION,
+    files: o.files as Record<string, Record<string, number>>,
+  };
+  if (Array.isArray(o.clients)) out.clients = o.clients as ClientId[];
+  if (typeof o.compatDataVersion === "string") out.compatDataVersion = o.compatDataVersion;
+  return out;
 }
