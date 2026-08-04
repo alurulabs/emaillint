@@ -138,4 +138,24 @@ describe("format: baseline", () => {
     const rr = { ...baselineRR, baseline: { ...baselineRR.baseline, compatWarning: "compat data drifted" } };
     expect(format(rr as never, "text")).toContain("compat data drifted");
   });
+
+  it("text: renders readError entries alongside new errors under baseline", () => {
+    const rr = {
+      results: [{ path: "gone.html", readError: "ENOENT: gone" }],
+      baseline: { mode: "check" as const, newErrors: [newErr], suppressed: 4 },
+    };
+    const out = format(rr as never, "text");
+    expect(out).toContain("gone.html:  error: ENOENT: gone");
+  });
+
+  it("sarif: readError entries appear in results under baseline", () => {
+    const rr = {
+      results: [{ path: "gone.html", readError: "ENOENT: gone" }],
+      baseline: { mode: "check" as const, newErrors: [newErr], suppressed: 4 },
+    };
+    const sarif = JSON.parse(format(rr as never, "sarif"));
+    const err = sarif.runs[0].results.find((r: { message?: { text?: string } }) => r.message?.text === "ENOENT: gone");
+    expect(err).toBeTruthy();
+    expect(err.level).toBe("error");
+  });
 });

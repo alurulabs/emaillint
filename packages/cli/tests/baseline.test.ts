@@ -3,7 +3,7 @@ import { writeFile, mkdir, rm, readFile } from "node:fs/promises";
 import { writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, relative } from "node:path";
-import { runBaseline, BaselineNotFoundError, BaselineScopeError } from "../src/baseline.js";
+import { runBaseline, BaselineNotFoundError, BaselineScopeError, BaselineParseError } from "../src/baseline.js";
 import { run } from "../src/run.js";
 
 const dir = join(import.meta.dirname, "tmp-baseline");
@@ -64,11 +64,31 @@ describe("runBaseline: check mode", () => {
   });
 });
 
+describe("runBaseline: invalid baseline file", () => {
+  it("invalid JSON -> BaselineParseError", async () => {
+    await writeFile(htmlPath, htmlWithScript);
+    writeFileSync(baselinePath, `{not json`);
+    await expect(runBaseline({ mode: "check", baselinePath }, await rr())).rejects.toBeInstanceOf(BaselineParseError);
+  });
+
+  it("schema mismatch -> BaselineParseError", async () => {
+    await writeFile(htmlPath, htmlWithScript);
+    writeFileSync(baselinePath, JSON.stringify({ version: 99, fingerprintVersion: 1, files: {} }));
+    await expect(runBaseline({ mode: "check", baselinePath }, await rr())).rejects.toBeInstanceOf(BaselineParseError);
+  });
+});
+
 describe("runBaseline: client-scope guard", () => {
   it("baseline with clients, run without -> BaselineScopeError", async () => {
     await writeFile(htmlPath, htmlWithScript);
     await runBaseline({ mode: "update", baselinePath, clients: ["gmail-ios"] }, await rr());
     await expect(runBaseline({ mode: "check", baselinePath }, await rr())).rejects.toBeInstanceOf(BaselineScopeError);
+  });
+
+  it("baseline without clients, run with clients -> BaselineScopeError", async () => {
+    await writeFile(htmlPath, htmlWithScript);
+    await runBaseline({ mode: "update", baselinePath }, await rr());
+    await expect(runBaseline({ mode: "check", baselinePath, clients: ["gmail-ios"] }, await rr())).rejects.toBeInstanceOf(BaselineScopeError);
   });
 });
 
@@ -100,6 +120,14 @@ describe("CLI baseline end-to-end (subprocess)", () => {
     r = cli(["--baseline", baselineFile, htmlPath]);
     expect(r.code).toBe(1);
     expect(r.stdout).toContain("new");
+    // JSON baseline output via the binary (state: 1 new error)
+    const rj = cli(["--baseline", baselineFile, "--format", "json", htmlPath]);
+    const j = JSON.parse(rj.stdout);
+    expect(j.baseline.newErrors).toHaveLength(1);
+    expect(typeof j.baseline.suppressed).toBe("number");
+    // SARIF baseline output via the binary
+    const rs = cli(["--baseline", baselineFile, "--format", "sarif", htmlPath]);
+    expect(JSON.parse(rs.stdout).runs[0].results).toHaveLength(1);
     // update absorbs it -> green
     r = cli(["--update-baseline", baselineFile, htmlPath]);
     expect(r.code).toBe(0);
@@ -112,5 +140,14 @@ describe("CLI baseline end-to-end (subprocess)", () => {
     const r = cli(["--baseline", join(dir, "nope.json"), htmlPath]);
     expect(r.code).toBe(2);
     expect(r.stderr.toLowerCase()).toContain("not found");
+  });
+
+  it("invalid baseline file -> exit 2", () => {
+    writeFileSync(htmlPath, `<script>x</script>`);
+    const baselineFile = join(dir, "bad.json");
+    writeFileSync(baselineFile, `{not json`);
+    const r = cli(["--baseline", baselineFile, htmlPath]);
+    expect(r.code).toBe(2);
+    expect(r.stderr.toLowerCase()).toContain("invalid");
   });
 });

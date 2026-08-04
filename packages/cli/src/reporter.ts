@@ -15,6 +15,9 @@ export function format(rr: RunResult, fmt: Format): string {
 function toText(results: FileResult[], baseline?: BaselineOutcome): string {
   const lines: string[] = [];
   if (baseline?.mode === "check") {
+    for (const f of results) {
+      if ("readError" in f) lines.push(`${f.path}:  error: ${f.readError}`);
+    }
     for (const ne of baseline.newErrors) {
       const s = ne.sample;
       const loc = s.line ? `${s.line}:${s.column ?? 1}  ` : "";
@@ -102,6 +105,15 @@ function toSarif(results: FileResult[], _clients?: string[], baseline?: Baseline
 
   const sarifResults: Record<string, unknown>[] = [];
   if (baseline?.mode === "check") {
+    for (const f of results) {
+      if ("readError" in f) {
+        sarifResults.push({
+          level: "error",
+          message: { text: f.readError },
+          locations: [{ physicalLocation: { artifactLocation: { uri: relativize(f.path) } } }],
+        });
+      }
+    }
     for (const ne of baseline.newErrors) {
       const s = ne.sample;
       const loc = { physicalLocation: { artifactLocation: { uri: relativize(ne.path) } } } as Record<string, unknown>;

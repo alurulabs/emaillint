@@ -129,7 +129,12 @@ export function parseBaseline(input: unknown): BaselineFile {
     fingerprintVersion: FINGERPRINT_VERSION,
     files: o.files as Record<string, Record<string, number>>,
   };
-  if (Array.isArray(o.clients)) out.clients = o.clients as ClientId[];
+  if (o.clients !== undefined) {
+    if (!Array.isArray(o.clients) || !o.clients.every((c) => typeof c === "string")) {
+      throw new Error("Invalid baseline: clients must be an array of strings");
+    }
+    out.clients = o.clients as ClientId[];
+  }
   if (typeof o.compatDataVersion === "string") out.compatDataVersion = o.compatDataVersion;
   return out;
 }

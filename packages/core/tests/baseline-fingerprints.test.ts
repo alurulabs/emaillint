@@ -76,11 +76,13 @@ describe("fingerprint compatibility contract", () => {
     expect(fingerprint(ctx, cssIssueAt(ctx, (d) => d.property === "color"))).toBe(`${T}#p#color#red`);
   });
 
-  // SVG is XML foreign content. parse5 emitted lowercase attr keys (source was
-  // lowercase, so no case change observable); sorted alphabetically by key.
-  it("SVG foreign content: attribute case preserved by parse5", () => {
-    const ctx = buildEmailContext(`<svg><rect width="10" height="5"/></svg>`);
-    expect(fingerprint(ctx, issueAt(ctx, (e) => e.tagName === "rect"))).toBe(`${T}#rect#height=5&width=10`);
+  // SVG is XML foreign content. Mixed-case source attr "Width" is lowercased
+  // to "width" by parse5 (HTML tokenizer lowercases attr names; the SVG
+  // foreign-content adjustment table only re-cases a known few like viewBox).
+  // The fingerprint additionally lowercases, so the key comes out "width".
+  it("SVG foreign content: mixed-case attr name lowercased by parse5", () => {
+    const ctx = buildEmailContext(`<svg><rect Width="10"/></svg>`);
+    expect(fingerprint(ctx, issueAt(ctx, (e) => e.tagName === "rect"))).toBe(`${T}#rect#width=10`);
   });
 
   // CSS string escape (backslash-escape of U+2014). postcss keeps the escape

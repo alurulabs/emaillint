@@ -159,4 +159,14 @@ describe("parseBaseline", () => {
   it("throws on non-object input", () => {
     expect(() => parseBaseline("nope")).toThrow(/not an object/);
   });
+
+  it("throws when clients is not an array of strings", () => {
+    expect(() => parseBaseline({ version: 1, fingerprintVersion: 1, files: {}, clients: "gmail" })).toThrow(/clients must be an array of strings/);
+    expect(() => parseBaseline({ version: 1, fingerprintVersion: 1, files: {}, clients: [1, 2] })).toThrow(/clients must be an array of strings/);
+  });
+
+  it("parses clients as array of strings", () => {
+    const parsed = parseBaseline({ version: 1, fingerprintVersion: 1, files: {}, clients: ["a"] });
+    expect(parsed.clients).toEqual(["a"]);
+  });
 });

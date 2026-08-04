@@ -3,7 +3,7 @@ import { parseArgs, UsageError, resolveCommand } from "./args.js";
 import { run, NoFilesMatched } from "./run.js";
 import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
-import { runBaseline, BaselineNotFoundError, BaselineScopeError } from "./baseline.js";
+import { runBaseline, BaselineNotFoundError, BaselineScopeError, BaselineParseError } from "./baseline.js";
 import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
 import type { ClientId } from "emaillint-core";
 import { VERSION } from "./version.js";
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
         rr,
       );
     } catch (e) {
-      if (e instanceof BaselineNotFoundError || e instanceof BaselineScopeError) {
+      if (e instanceof BaselineNotFoundError || e instanceof BaselineScopeError || e instanceof BaselineParseError) {
         process.stderr.write(`${e.message}\n`);
         process.exit(2);
       }

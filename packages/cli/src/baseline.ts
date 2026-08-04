@@ -8,6 +8,7 @@ import type { RunResult, BaselineOutcome } from "./types.js";
 
 export class BaselineNotFoundError extends Error {}
 export class BaselineScopeError extends Error {}
+export class BaselineParseError extends Error {}
 
 interface RunBaselineArgs {
   mode: "check" | "update";
@@ -52,7 +53,12 @@ export async function runBaseline(args: RunBaselineArgs, rr: RunResult): Promise
   } catch {
     throw new BaselineNotFoundError(`baseline not found at ${args.baselinePath}; run --update-baseline first`);
   }
-  const baseline: BaselineFile = parseBaseline(JSON.parse(raw));
+  let baseline: BaselineFile;
+  try {
+    baseline = parseBaseline(JSON.parse(raw));
+  } catch (e) {
+    throw new BaselineParseError(`baseline at ${args.baselinePath} is invalid: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
   // client-scope guard (set-equal, order-independent; presence must match both sides)
   if (!setEqual(baseline.clients, clients)) {
