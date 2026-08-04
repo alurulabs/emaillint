@@ -37,12 +37,16 @@ export interface NewError {
 // Internal: canonical identity for one issue. Element match first, then CSS
 // declaration, then ruleId-only. Every fallback degrades gracefully toward a
 // coarser but still count-correct identity.
-// ponytail: CSS declaration lookup by line:col is ambiguous for multiple inline
-// declarations sharing one line; deterministic across runs so baseline matching
-// holds, only debuggability of the string suffers. Id selectors contain "#"
-// (e.g. div#main), colliding with the "#" joiner - same fail-safe direction as
-// the "&"-in-value collision (false collision = masked duplicate = false
-// negative). Upgrade path: ladder.
+// ponytail: inline-style declarations share their element's line:col, so element
+// match wins for inline CSS - an inline-CSS issue fingerprints as its ELEMENT,
+// not as selector+property+value. Changing an allowlisted attr on such an
+// element (e.g. href="#" -> real URL) then resurfaces it as "new": false
+// positive, dangerous direction. <style>-block CSS is unaffected (unique
+// line:col). Bites only for inline CSS promoted to error; documented in the
+// spec; fix = declaration-priority heuristic (ruleId/category) or source-kind on
+// Issue. Id selectors contain "#" (e.g. div#main), colliding with the "#" joiner
+// - same fail-safe direction as "&"-in-value collisions (masked duplicate =
+// false negative). Upgrade path: ladder.
 export function fingerprint(ctx: EmailContext, issue: Issue): string {
   // Document-level issues carry no position; skip positional lookup entirely,
   // otherwise undefined === undefined would match auto-inserted elements
