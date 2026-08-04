@@ -1,4 +1,5 @@
 export { analyze, getRule, getRules } from "./engine.js";
+export { buildEmailContext } from "./parser/context.js";
 export { getCompatDataVersion } from "./rules/compat-lookup.js";
 export { CLIENT_IDS, CLIENT_PRESETS } from "./rules/presets.js";
 export { CLIENTS } from "./generated/compat-data.js";

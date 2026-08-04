@@ -62,6 +62,7 @@ describe("public API", () => {
       "CLIENT_PRESETS",
       "FINGERPRINT_VERSION",
       "analyze",
+      "buildEmailContext",
       "createBaseline",
       "diffAgainstBaseline",
       "getCompatDataVersion",
