@@ -65,3 +65,17 @@ describe("run", () => {
     expect(cleanHits).toBe(1);
   });
 });
+
+describe("run collectCtx", () => {
+  it("attaches ctx when collectCtx true", async () => {
+    const rr = await run([join(FX, "clean.html")], { collectCtx: true });
+    expect("readError" in rr.results[0]).toBe(false);
+    if (!("readError" in rr.results[0])) expect(rr.results[0].ctx).toBeDefined();
+  });
+
+  it("does not attach ctx by default", async () => {
+    const rr = await run([join(FX, "clean.html")], {});
+    expect("readError" in rr.results[0]).toBe(false);
+    if (!("readError" in rr.results[0])) expect(rr.results[0].ctx).toBeUndefined();
+  });
+});
