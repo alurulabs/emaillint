@@ -1,4 +1,4 @@
-import type { AnalysisResult, RuleSetting, EmailContext, NewError } from "emaillint-core";
+import type { AnalysisResult, RuleSetting, EmailContext, NewError, ProfileName } from "emaillint-core";
 
 export type Format = "text" | "json" | "sarif";
 
@@ -12,6 +12,7 @@ export interface CliOptions {
   version: boolean;
   baselinePath?: string;       // --baseline [path]
   updateBaselinePath?: string; // --update-baseline [path]
+  profile?: ProfileName;       // --profile [name]
 }
 
 export type FileResult = { path: string } & (
