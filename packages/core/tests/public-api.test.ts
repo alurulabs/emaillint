@@ -61,6 +61,7 @@ describe("public API", () => {
       "CLIENT_IDS",
       "CLIENT_PRESETS",
       "FINGERPRINT_VERSION",
+      "PROFILES",
       "analyze",
       "buildEmailContext",
       "createBaseline",
@@ -72,6 +73,13 @@ describe("public API", () => {
     ]);
     expect(typeof api.getCompatDataVersion).toBe("function");
     expect(api.getCompatDataVersion()).toMatch(/^caniemail@/); // real snapshot, not a stub
+  });
+});
+
+describe("public api: profiles", () => {
+  it("exports PROFILES constant with the three curated profiles", () => {
+    expect(typeof api.PROFILES).toBe("object");
+    expect(Object.keys(api.PROFILES).sort()).toEqual(["recommended", "relaxed", "strict"]);
   });
 });
 
