@@ -5,6 +5,16 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+### Added
+- **Severity profiles** - `--profile <recommended|strict|relaxed>` (CLI) and
+  `analyze(html, { profile })` (core). A named severity-tier shift over the
+  calibrated defaults: `recommended` preserves them, `strict` promotes every
+  warning to error, `relaxed` demotes every warning to info. Profiles never
+  create or remove diagnostics, only change severity; explicit `--rule`/`rules`
+  overrides win. New rules auto-participate. `PROFILES` and the profile names
+  are stable public API. Composes with `--baseline`. See
+  `docs/superpowers/specs/2026-08-05-severity-profiles-design.md`.
+
 ## [0.12.0] - 2026-08-04
 
 ### Added
