@@ -127,3 +127,18 @@ describe("parseArgs: baseline flags", () => {
     expect(() => parseArgs(["--baseline=x.json", "--update-baseline=y.json", "a.html"])).toThrow(/mutually exclusive/);
   });
 });
+
+describe("parseArgs: --profile", () => {
+  it("sets profile for a valid name", () => {
+    expect(parseArgs(["--profile", "strict", "a.html"]).profile).toBe("strict");
+  });
+  it("rejects an unknown profile name", () => {
+    expect(() => parseArgs(["--profile", "aggressive", "a.html"])).toThrow(/profile/);
+  });
+  it("requires a value", () => {
+    expect(() => parseArgs(["--profile"])).toThrow(/requires/);
+  });
+  it("defaults to undefined when omitted", () => {
+    expect(parseArgs(["a.html"]).profile).toBeUndefined();
+  });
+});

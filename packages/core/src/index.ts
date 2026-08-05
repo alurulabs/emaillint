@@ -3,6 +3,7 @@ export { buildEmailContext } from "./parser/context.js";
 export { getCompatDataVersion } from "./rules/compat-lookup.js";
 export { CLIENT_IDS, CLIENT_PRESETS } from "./rules/presets.js";
 export { CLIENTS } from "./generated/compat-data.js";
+export { PROFILES } from "./profiles.js";
 export { createBaseline, diffAgainstBaseline, parseBaseline, BASELINE_VERSION, FINGERPRINT_VERSION } from "./baseline.js";
 export type { ClientId } from "./generated/compat-data.js";
 export type { AnalyzedFile, BaselineFile, NewError } from "./baseline.js";
@@ -24,6 +25,7 @@ export type {
   ImageInfo,
   Issue,
   LinkInfo,
+  ProfileName,
   Reference,
   RuleSetting,
   Severity,

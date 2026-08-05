@@ -1,8 +1,9 @@
-import type { AnalysisResult, AnalyzeOptions, EmailRule, Issue } from "./types/index.js";
+import type { AnalysisResult, AnalyzeOptions, EmailRule, Issue, ProfileName, RuleSetting, Severity } from "./types/index.js";
 import { buildEmailContext } from "./parser/context.js";
 import { calculateScore } from "./scoring/index.js";
 import { rules } from "./rules/index.js";
 import { scopeWorstStatus } from "./rules/compat-lookup.js";
+import { PROFILES } from "./profiles.js";
 
 const ID_RE = /^[A-Z][A-Z0-9_]+$/;
 
@@ -47,15 +48,18 @@ export function analyze(html: string, options?: AnalyzeOptions): AnalysisResult 
   }
   const context = buildEmailContext(html);
   const overrides = options?.rules ?? {};
+  const profile: ProfileName = options?.profile ?? "recommended";
+  const shift = PROFILES[profile];
   const clients = options?.clients;
   const filter = !!clients && clients.length > 0;
   const issues: Issue[] = [];
   for (const rule of rules) {
-    const setting = overrides[rule.id];
-    if (setting === "off") continue;
+    const explicit = overrides[rule.id];
+    const effective: RuleSetting = explicit ?? shift[rule.severity] ?? rule.severity;
+    if (effective === "off") continue;
     const emitted = rule.check(context);
     for (let issue of emitted) {
-      if (setting) issue = { ...issue, severity: setting };
+      if (effective !== rule.severity) issue = { ...issue, severity: effective };
       if (filter && rule.category === "compatibility") {
         const worst = scopeWorstStatus(rule.compatibility?.support ?? [], clients!);
         if (worst === "supported") continue; // fully supported across all selected clients → drop

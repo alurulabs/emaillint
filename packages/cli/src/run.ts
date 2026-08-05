@@ -3,7 +3,7 @@ import { glob, isDynamicPattern } from "tinyglobby";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { analyze, buildEmailContext } from "emaillint-core";
-import type { RuleSetting, ClientId } from "emaillint-core";
+import type { RuleSetting, ClientId, ProfileName } from "emaillint-core";
 import type { RunResult, FileResult } from "./types.js";
 
 export class NoFilesMatched extends Error {
@@ -15,7 +15,7 @@ export class NoFilesMatched extends Error {
 
 export async function run(
   paths: string[],
-  opts: { rules?: Record<string, RuleSetting>; clients?: ClientId[]; collectCtx?: boolean },
+  opts: { rules?: Record<string, RuleSetting>; clients?: ClientId[]; profile?: ProfileName; collectCtx?: boolean },
 ): Promise<RunResult> {
   // tinyglobby returns cwd-relative paths and silently drops literal paths
   // that don't exist on disk. Keep literal inputs (resolved to absolute) so a
@@ -30,7 +30,7 @@ export async function run(
   for (const path of sorted) {
     try {
       const html = await readFile(path, "utf8");
-      const result = analyze(html, { rules: opts.rules, clients: opts.clients });
+      const result = analyze(html, { rules: opts.rules, clients: opts.clients, profile: opts.profile });
       results.push(
         opts.collectCtx
           ? { path, result, ctx: buildEmailContext(html) } // ponytail: double-parse; share ctx out of analyze() if profiling demands

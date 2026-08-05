@@ -4,8 +4,8 @@ import { run, NoFilesMatched } from "./run.js";
 import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
 import { runBaseline, BaselineNotFoundError, BaselineScopeError, BaselineParseError } from "./baseline.js";
-import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
-import type { ClientId } from "emaillint-core";
+import { CLIENT_IDS, CLIENT_PRESETS, PROFILES } from "emaillint-core";
+import type { ClientId, ProfileName } from "emaillint-core";
 import { VERSION } from "./version.js";
 
 const USAGE = `emaillint <paths...> [options]
@@ -14,6 +14,7 @@ const USAGE = `emaillint <paths...> [options]
   --rule <ID>=<LEVEL>         override a rule (LEVEL: off|info|warning|error); repeatable
   --preset <name>             target a client preset (outlook|gmail|apple-mail|yahoo|all)
   --clients <id,id,...>       target specific caniemail client IDs (see: emaillint clients)
+  --profile <name>            severity policy: recommended | strict | relaxed
   --baseline <path>           fail CI only on new errors vs a committed baseline snapshot
   --update-baseline <path>    write/refresh the baseline snapshot
   -h, --help                  show help
@@ -23,6 +24,14 @@ async function main(): Promise<void> {
   const sub = resolveCommand(process.argv[2]);
   if (sub === "clients") { process.stdout.write(`${[...CLIENT_IDS].join("\n")}\n`); process.exit(0); }
   if (sub === "presets") { process.stdout.write(`${Object.keys(CLIENT_PRESETS).join("\n")}\n`); process.exit(0); }
+  if (sub === "profiles") {
+    const lines = (Object.entries(PROFILES) as [string, Record<string, string>][]).map(([name, shifts]) => {
+      const parts = Object.entries(shifts).map(([from, to]) => `${from} -> ${to}`);
+      return parts.length ? `${name.padEnd(12)}${parts.join(", ")}` : `${name.padEnd(12)}(calibrated defaults)`;
+    });
+    process.stdout.write(`${lines.join("\n")}\n`);
+    process.exit(0);
+  }
 
   let opts;
   try {
@@ -40,7 +49,7 @@ async function main(): Promise<void> {
 
   let rr;
   try {
-    rr = await run(opts.paths, { rules: opts.rules, clients: opts.clientIds as ClientId[], collectCtx: isUpdate || isCheck });
+    rr = await run(opts.paths, { rules: opts.rules, clients: opts.clientIds as ClientId[], profile: opts.profile, collectCtx: isUpdate || isCheck });
   } catch (e) {
     if (e instanceof NoFilesMatched) { process.stderr.write(`${e.message}\n`); process.exit(1); }
     process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`);

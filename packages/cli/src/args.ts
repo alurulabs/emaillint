@@ -1,7 +1,7 @@
 // packages/cli/src/args.ts
 import type { CliOptions, Format } from "./types.js";
-import type { RuleSetting } from "emaillint-core";
-import { CLIENT_IDS, CLIENT_PRESETS } from "emaillint-core";
+import type { RuleSetting, ProfileName } from "emaillint-core";
+import { CLIENT_IDS, CLIENT_PRESETS, PROFILES } from "emaillint-core";
 
 export class UsageError extends Error {}
 
@@ -61,6 +61,19 @@ export function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     if (a.startsWith("--update-baseline=")) { opts.updateBaselinePath = a.slice("--update-baseline=".length); continue; }
+    if (a === "--profile") {
+      const v = argv[++i];
+      if (v === undefined) throw new UsageError("--profile requires a name");
+      if (!(v in PROFILES)) throw new UsageError(`--profile must be one of: ${Object.keys(PROFILES).join(", ")} (got ${v})`);
+      opts.profile = v as ProfileName;
+      continue;
+    }
+    if (a.startsWith("--profile=")) {
+      const v = a.slice("--profile=".length);
+      if (!(v in PROFILES)) throw new UsageError(`--profile must be one of: ${Object.keys(PROFILES).join(", ")} (got ${v})`);
+      opts.profile = v as ProfileName;
+      continue;
+    }
     if (a.startsWith("--")) throw new UsageError(`unknown flag: ${a}`);
     opts.paths.push(a);
   }
@@ -96,6 +109,6 @@ function parseClients(spec: string, opts: CliOptions): void {
 // Subcommand dispatch: "clients"/"presets" as the first positional arg list
 // valid options. Anything else (paths, flags) returns null. Note: a file
 // literally named "clients" with no extension is not lintable via the CLI.
-export function resolveCommand(arg: string | undefined): "clients" | "presets" | null {
-  return arg === "clients" || arg === "presets" ? arg : null;
+export function resolveCommand(arg: string | undefined): "clients" | "presets" | "profiles" | null {
+  return arg === "clients" || arg === "presets" || arg === "profiles" ? arg : null;
 }
