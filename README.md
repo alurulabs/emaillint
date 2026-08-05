@@ -83,6 +83,9 @@ Lint emails from the command line:
 emaillint emails/**/*.html
 emaillint email.html --format json
 emaillint email.html --rule CSS_BORDER_RADIUS=off
+emaillint email.html --profile strict          # warnings -> errors
+emaillint --update-baseline .emaillint-baseline.json emails/**/*.html
+emaillint --baseline .emaillint-baseline.json emails/**/*.html   # fail only on NEW errors
 ```
 
 Install globally or run one-off:
@@ -92,16 +95,19 @@ npm install -g @emaillint/cli   # then: emaillint ...
 npx @emaillint/cli email.html   # no install
 ```
 
-Exit code is **1 if any `error`-severity issue** (CI gating); warnings/info
-don't fail. Output formats: `text` (default) and `json` (includes the
-`dataVersion` snapshot). The package name `emaillint` is squatted on npm, so the
-CLI ships as the scoped **`@emaillint/cli`** with bin **`emaillint`**.
+Exit code is **1 if any `error`-severity issue** (CI gating; under `--baseline`,
+only *new* errors). Warnings/info don't fail. Output formats: `text` (default),
+`json` (includes the `dataVersion` snapshot), and `sarif` (2.1.0, for GitHub
+Code Scanning). Severity profiles (`--profile`) set policy; baseline mode
+(`--baseline`) tolerates existing debt. The package name `emaillint` is squatted
+on npm, so the CLI ships as the scoped **`@emaillint/cli`** with bin
+**`emaillint`**.
 
 ## Result shape
 
 ```ts
 interface AnalysisResult {
-  score: number;        // 0–100, floor 0
+  score: number;        // 0-100, floor 0
   issues: Issue[];      // ruleId, severity, category, message, line?, column?, suggestion?
 }
 ```
@@ -181,7 +187,8 @@ Output:
 |---|---|
 | `CSS_FLEXBOX` · `CSS_GRID` | warning |
 | `CSS_CUSTOM_PROPERTY` · `CSS_CALC` · `CSS_MIN_MAX_CLAMP` | warning |
-| `CSS_BORDER_RADIUS` · `CSS_BACKGROUND_IMAGE` | warning |
+| `CSS_BORDER_RADIUS` | info |
+| `CSS_BACKGROUND_IMAGE` | warning |
 | `CSS_ABSOLUTE_POSITION` · `CSS_FIXED_POSITION` · `CSS_FLOAT` | warning |
 | `CSS_EXTERNAL_FONT` | warning |
 | `CSS_TRANSFORM` · `CSS_FILTER` · `CSS_BACKDROP_FILTER` · `CSS_MIX_BLEND_MODE` | warning |
@@ -207,9 +214,9 @@ as a machine-readable email-compatibility database, not just a linter.
 const flexbox = getRule("CSS_FLEXBOX");
 
 flexbox?.compatibility?.support;
-// [{ client: "outlook-windows", status: "unsupported", note: "..." },
-//  { client: "gmail-web",       status: "partial" },
-//  { client: "apple-mail",      status: "supported" }]
+// [{ client: "outlook-windows",        status: "unsupported", note: "..." },
+//  { client: "gmail-desktop-webmail",  status: "partial" },
+//  { client: "apple-mail-macos",       status: "supported" }]
 
 flexbox?.compatibility?.references;
 // [{ title: "Can I Email", url: "https://www.caniemail.com/...", kind: "official" }]
