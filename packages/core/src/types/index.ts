@@ -11,9 +11,12 @@ export type Severity = "error" | "warning" | "info";
 
 export type RuleSetting = "off" | "info" | "warning" | "error";
 
+export type ProfileName = "recommended" | "strict" | "relaxed";
+
 export interface AnalyzeOptions {
   rules?: Record<string, RuleSetting>;
   clients?: ClientId[];
+  profile?: ProfileName;
 }
 
 export interface Issue {
