@@ -5,6 +5,8 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-06
+
 ### Added
 - **Severity profiles** - `--profile <recommended|strict|relaxed>` (CLI) and
   `analyze(html, { profile })` (core). A named severity-tier shift over the
@@ -14,6 +16,9 @@ the `analyze()` options shape may change before 1.0.
   overrides win. New rules auto-participate. `PROFILES` and the profile names
   are stable public API. Composes with `--baseline`. See
   `docs/superpowers/specs/2026-08-05-severity-profiles-design.md`.
+
+### Fixed
+- **CLI executable** - npm 11 stripped the `bin` entry at publish time because the path was `./dist/index.js`; the published 0.12.0 CLI had no `emaillint` executable, breaking `npx`/global install. Path is now `dist/index.js`. (#24)
 
 ## [0.12.0] - 2026-08-04
 
