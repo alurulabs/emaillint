@@ -44,6 +44,11 @@ describe("makeIssue", () => {
     expect(i.selector).toBe("img");
     expect(i.suggestion).toBe("fix");
   });
+
+  it("never sets an explanation field (dead field removed)", () => {
+    const i = makeIssue(rule, { message: "m" });
+    expect("explanation" in i).toBe(false);
+  });
 });
 
 describe("getReferences", () => {

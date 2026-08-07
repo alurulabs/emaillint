@@ -141,7 +141,7 @@ function toSarif(results: FileResult[], _clients?: string[], baseline?: Baseline
       sarifResults.push({
         ruleId: is.ruleId,
         level: LEVEL_MAP[is.severity],
-        message: { text: is.explanation ? `${is.message}\n${is.explanation}` : is.message },
+        message: { text: is.message },
         locations: [loc],
       });
     }

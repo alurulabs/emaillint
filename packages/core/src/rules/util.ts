@@ -6,7 +6,6 @@ interface IssueOptions {
   line?: number;
   column?: number;
   selector?: string;
-  explanation?: string;
   suggestion?: string;
 }
 
@@ -16,7 +15,6 @@ export function makeIssue(rule: EmailRule, opts: IssueOptions): Issue {
     severity: opts.severity ?? rule.severity,
     category: rule.category,
     message: opts.message,
-    explanation: opts.explanation,
     selector: opts.selector,
     line: opts.line,
     column: opts.column,

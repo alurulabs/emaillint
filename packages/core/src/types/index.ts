@@ -24,7 +24,6 @@ export interface Issue {
   severity: Severity;
   category: Category;
   message: string;
-  explanation?: string;
   selector?: string;
   line?: number;
   column?: number;
