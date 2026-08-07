@@ -33,6 +33,17 @@ export function validateRules(ruleList: EmailRule[]): void {
         urls.add(ref.url);
       }
     }
+
+    if (rule.references) {
+      for (const ref of rule.references) {
+        if (!ref.url.startsWith("https://")) throw new Error(`Reference must be https:// (${rule.id}): ${ref.url}`);
+      }
+      const topUrls = new Set<string>();
+      for (const ref of rule.references) {
+        if (topUrls.has(ref.url)) throw new Error(`Duplicate reference (${rule.id}): ${ref.url}`);
+        topUrls.add(ref.url);
+      }
+    }
   }
 }
 

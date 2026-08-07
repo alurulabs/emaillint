@@ -89,6 +89,32 @@ describe("validateRules", () => {
   it("accepts a well-formed compat rule", () => {
     expect(() => validateRules([compatBase])).not.toThrow();
   });
+
+  it("accepts top-level references on a non-compat rule", () => {
+    expect(() =>
+      validateRules([{ ...base, id: "AAA", references: [{ title: "t", url: "https://x.example" }] }]),
+    ).not.toThrow();
+  });
+
+  it("rejects a non-https top-level reference", () => {
+    expect(() =>
+      validateRules([{ ...base, id: "AAA", references: [{ title: "t", url: "http://x" }] }]),
+    ).toThrow(/https/);
+  });
+
+  it("rejects a duplicate top-level reference URL", () => {
+    expect(() =>
+      validateRules([
+        {
+          ...base, id: "AAA",
+          references: [
+            { title: "a", url: "https://x.example" },
+            { title: "b", url: "https://x.example" },
+          ],
+        },
+      ]),
+    ).toThrow(/Duplicate reference/);
+  });
 });
 
 describe("analyze", () => {

@@ -67,6 +67,7 @@ describe("public API", () => {
       "createBaseline",
       "diffAgainstBaseline",
       "getCompatDataVersion",
+      "getReferences",
       "getRule",
       "getRules",
       "parseBaseline",

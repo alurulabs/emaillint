@@ -1,8 +1,19 @@
 import { describe, it, expect } from "vitest";
-import { makeIssue } from "../src/rules/util.js";
+import { makeIssue, getReferences } from "../src/rules/util.js";
 import type { EmailRule } from "../src/types/index.js";
 
 const rule: EmailRule = {
+  id: "X",
+  name: "n",
+  category: "quality",
+  severity: "warning",
+  description: "d",
+  why: "",
+  howToFix: "",
+  check: () => [],
+};
+
+const stub: EmailRule = {
   id: "X",
   name: "n",
   category: "quality",
@@ -32,5 +43,35 @@ describe("makeIssue", () => {
     expect(i.line).toBe(7);
     expect(i.selector).toBe("img");
     expect(i.suggestion).toBe("fix");
+  });
+});
+
+describe("getReferences", () => {
+  it("returns top-level references when present", () => {
+    const rule: EmailRule = { ...stub, references: [{ title: "t", url: "https://x.example" }] };
+    expect(getReferences(rule)).toEqual([{ title: "t", url: "https://x.example" }]);
+  });
+
+  it("falls back to compatibility.references for compat rules", () => {
+    const rule: EmailRule = {
+      ...stub, category: "compatibility",
+      compatibility: {
+        support: [{ client: "gmail-desktop-webmail", status: "unsupported" }],
+        references: [{ title: "c", url: "https://c.example" }],
+      },
+    };
+    expect(getReferences(rule)).toEqual([{ title: "c", url: "https://c.example" }]);
+  });
+
+  it("returns [] when neither top-level nor compat references are present", () => {
+    expect(getReferences(stub)).toEqual([]);
+  });
+
+  it("prefers top-level references over compat when both are set", () => {
+    const rule: EmailRule = {
+      ...stub, references: [{ title: "top", url: "https://top.example" }],
+      compatibility: { support: [], references: [{ title: "nested", url: "https://nested.example" }] },
+    };
+    expect(getReferences(rule).map((r) => r.title)).toEqual(["top"]);
   });
 });
