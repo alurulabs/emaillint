@@ -9,6 +9,9 @@ export const emptyLinkRule: EmailRule = {
   description: "<a> without an href, or with an empty href, is not navigable.",
   why: "An anchor without a usable href is not navigable and harms accessibility and click tracking.",
   howToFix: "Add a valid href, or replace the anchor with a non-navigable element if it has no destination.",
+  references: [
+    { title: "MDN: The Anchor element", url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a", kind: "official" },
+  ],
   since: "0.1.0",
   check(ctx) {
     return ctx.links

@@ -9,6 +9,9 @@ export const headingEmptyRule: EmailRule = {
   description: "A heading element (<h1>-<h6>) has no text content.",
   why: "Empty headings confuse screen-reader heading navigation.",
   howToFix: "Add text or remove the empty heading.",
+  references: [
+    { title: "WCAG 2.4.6 Headings and Labels", url: "https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html", kind: "spec" },
+  ],
   check(ctx) {
     return ctx.headings
       .filter((h) => !h.text)

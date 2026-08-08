@@ -9,6 +9,9 @@ export const duplicateIdRule: EmailRule = {
   description: "id attributes must be unique within the document.",
   why: "Duplicate id values break in-page anchors, fragment navigation, and label/aria attribute references.",
   howToFix: "Give each element a unique id value.",
+  references: [
+    { title: "MDN: id global attribute", url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id", kind: "official" },
+  ],
   since: "0.1.0",
   check(ctx) {
     const counts = new Map<string, { line?: number; column?: number; count: number }>();
