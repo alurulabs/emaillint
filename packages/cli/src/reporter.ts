@@ -2,6 +2,7 @@
 import type { RunResult, Format, FileResult, BaselineOutcome } from "./types.js";
 import { relative, isAbsolute } from "node:path";
 import { getCompatDataVersion, getRules, getRule, getReferences } from "emaillint-core";
+import type { Reference } from "emaillint-core";
 import { VERSION } from "./version.js";
 const REPO_URL = "https://github.com/alurulabs/emaillint";
 
@@ -62,7 +63,7 @@ type RuleSummary = {
   category: string;
   why: string;
   howToFix: string;
-  references: { title: string; url: string; kind?: string }[];
+  references: Reference[];
 };
 
 function buildRulesMap(results: FileResult[], baseline?: BaselineOutcome): Record<string, RuleSummary> {
@@ -70,6 +71,8 @@ function buildRulesMap(results: FileResult[], baseline?: BaselineOutcome): Recor
   for (const f of results) {
     if ("result" in f) for (const is of f.result.issues) ids.add(is.ruleId);
   }
+  // Defensive: results may one day drop baseline-suppressed issues (SARIF already
+  // does), so collect newError ruleIds explicitly to keep the rules map complete.
   if (baseline?.mode === "check") for (const ne of baseline.newErrors) ids.add(ne.sample.ruleId);
   const map: Record<string, RuleSummary> = {};
   for (const r of getRules()) {

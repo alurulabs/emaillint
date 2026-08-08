@@ -186,6 +186,13 @@ describe("format: baseline", () => {
     expect(err).toBeTruthy();
     expect(err.level).toBe("error");
   });
+
+  it("json: rules map is populated under baseline-check", () => {
+    const json = JSON.parse(format(baselineRR as never, "json"));
+    expect(json.rules).toBeDefined();
+    expect(json.rules.SCRIPT_ELEMENT).toBeDefined();
+    expect(json.rules.SCRIPT_ELEMENT.howToFix).toEqual(expect.any(String));
+  });
 });
 
 describe("format: --explain (text)", () => {
