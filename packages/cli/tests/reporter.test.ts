@@ -189,4 +189,39 @@ describe("format: --explain (text)", () => {
     expect(out).not.toContain("  fix:");
     expect(out).not.toContain("  see:");
   });
+
+  it("renders multiple references with a see: label then continuation lines", () => {
+    // CSS_EXTERNAL_FONT is the one compat rule whose generated references have
+    // multiple entries (2), exercising the i > 0 continuation indent in explainLines.
+    const rrMulti: RunResult = {
+      results: [
+        {
+          path: "m.html",
+          result: {
+            score: 80,
+            issues: [
+              { ruleId: "CSS_EXTERNAL_FONT", severity: "warning", category: "compatibility", message: "External font (@font-face) has limited email client support.", line: 1 },
+            ],
+          },
+        },
+      ],
+    };
+    const out = format(rrMulti, "text", true);
+    const seeLines = out.split("\n").filter((l) => l.startsWith("  see:  "));
+    expect(seeLines.length).toBe(1); // exactly one labeled see: line
+    // at least one further reference line exists, indented (no see: label)
+    expect(out.split("\n").filter((l) => /^        \S/.test(l)).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("enriches new errors under baseline-check when explain=true", () => {
+    const sample = { ruleId: "SCRIPT_ELEMENT", severity: "error", category: "invalid", message: "<script> not supported.", line: 3, column: 1 };
+    const rrBase: RunResult = {
+      results: [{ path: "t.html", result: { score: 50, issues: [sample] } }],
+      baseline: { mode: "check", newErrors: [{ path: "t.html", fingerprint: "SCRIPT_ELEMENT#script#", count: 1, sample }], suppressed: 0 },
+    };
+    const out = format(rrBase, "text", true);
+    expect(out).toContain("SCRIPT_ELEMENT");
+    expect(out).toContain("  why:");
+    expect(out).toContain("  fix:");
+  });
 });
