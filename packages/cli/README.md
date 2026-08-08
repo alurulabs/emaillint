@@ -23,6 +23,7 @@ emaillint emails/**/*.html
 emaillint email.html --format json
 emaillint email.html --rule CSS_BORDER_RADIUS=off
 emaillint email.html --profile strict          # treat all warnings as errors
+emaillint email.html --explain                 # show why + how-to-fix + links under each finding
 emaillint --update-baseline .emaillint-baseline.json emails/**/*.html  # snapshot existing errors
 emaillint --baseline .emaillint-baseline.json emails/**/*.html         # fail only on NEW errors
 ```
@@ -38,6 +39,7 @@ all fails with a clear `no files matched` error.
 | `--format <text\|json\|sarif>` | Output format. Default `text`. `json` includes the compatibility `dataVersion` snapshot; `sarif` is for GitHub Code Scanning / Azure. |
 | `--rule <ID>=<severity>` | Override a rule severity (`off`, `info`, `warning`, `error`). Repeatable; also `--rule=ID=severity`. Explicit overrides win over `--profile`. |
 | `--profile <name>` | Severity policy: `recommended` (default, calibrated), `strict` (warnings -> errors), `relaxed` (warnings -> info). |
+| `--explain` | Text only: append `why` / `howToFix` / references under each finding. Default off. No effect on `json` (rules map is always present) or `sarif`. |
 | `--preset <name>` | Target a client preset: `outlook`, `gmail`, `apple-mail`, `yahoo`, `all`. Drops compat issues fully supported across the selected clients. |
 | `--clients <id,...>` | Target specific caniemail client IDs (see `emaillint clients`). |
 | `--baseline <path>` | Fail CI only on errors not in a committed snapshot (adoption for legacy templates). |
