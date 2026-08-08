@@ -57,6 +57,35 @@ function toText(results: FileResult[], baseline?: BaselineOutcome, explain = fal
   return lines.join("\n");
 }
 
+type RuleSummary = {
+  name: string;
+  category: string;
+  why: string;
+  howToFix: string;
+  references: { title: string; url: string; kind?: string }[];
+};
+
+function buildRulesMap(results: FileResult[], baseline?: BaselineOutcome): Record<string, RuleSummary> {
+  const ids = new Set<string>();
+  for (const f of results) {
+    if ("result" in f) for (const is of f.result.issues) ids.add(is.ruleId);
+  }
+  if (baseline?.mode === "check") for (const ne of baseline.newErrors) ids.add(ne.sample.ruleId);
+  const map: Record<string, RuleSummary> = {};
+  for (const r of getRules()) {
+    if (ids.has(r.id)) {
+      map[r.id] = {
+        name: r.name,
+        category: r.category,
+        why: r.why,
+        howToFix: r.howToFix,
+        references: getReferences(r),
+      };
+    }
+  }
+  return map;
+}
+
 function toJson(results: FileResult[], clients?: string[], baseline?: BaselineOutcome): string {
   let errors = 0, warnings = 0, info = 0;
   const files = results.map((f) => {
@@ -72,6 +101,7 @@ function toJson(results: FileResult[], clients?: string[], baseline?: BaselineOu
     dataVersion: getCompatDataVersion(),
     files,
     totals: { files: results.length, errors, warnings, info },
+    rules: buildRulesMap(results, baseline),
   };
   if (clients && clients.length) payload.clients = clients;
   if (baseline) {

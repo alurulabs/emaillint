@@ -61,6 +61,20 @@ describe("reporter", () => {
     expect(j0.clients).toBeUndefined();
   });
 
+  it("json: includes a fired-only rules map with remediation", () => {
+    const j = JSON.parse(format(rr, "json"));
+    expect(j.rules).toBeDefined();
+    expect(Object.keys(j.rules).sort()).toEqual(["CSS_FLEXBOX", "SCRIPT_ELEMENT"]);
+    expect(j.rules.IMG_MISSING_ALT).toBeUndefined(); // did not fire
+    expect(j.rules.SCRIPT_ELEMENT).toMatchObject({
+      name: expect.any(String),
+      category: expect.any(String),
+      why: expect.any(String),
+      howToFix: expect.any(String),
+    });
+    expect(Array.isArray(j.rules.SCRIPT_ELEMENT.references)).toBe(true);
+  });
+
   it("sarif: produces a 2.1.0 doc with rules + results, relativized paths, mapped levels", () => {
     const orig = process.env.GITHUB_WORKSPACE;
     process.env.GITHUB_WORKSPACE = "/repo";
@@ -223,5 +237,10 @@ describe("format: --explain (text)", () => {
     expect(out).toContain("SCRIPT_ELEMENT");
     expect(out).toContain("  why:");
     expect(out).toContain("  fix:");
+  });
+
+  it("is a no-op for json (rules map is always present regardless)", () => {
+    const j = JSON.parse(format(rrExplain, "json", true));
+    expect(j.rules.IMG_MISSING_ALT).toBeDefined();
   });
 });
