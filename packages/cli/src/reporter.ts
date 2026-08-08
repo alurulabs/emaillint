@@ -143,7 +143,7 @@ function toSarif(results: FileResult[], _clients?: string[], baseline?: Baseline
       defaultConfiguration: { level: LEVEL_MAP[r.severity] },
       properties: { category: r.category, severity: r.severity },
     };
-    const helpUri = r.compatibility?.references[0]?.url;
+    const helpUri = getReferences(r)[0]?.url;
     if (helpUri) descriptor.helpUri = helpUri;
     if (r.since) (descriptor.properties as Record<string, unknown>).since = r.since;
     return descriptor;

@@ -97,7 +97,7 @@ describe("reporter", () => {
       expect(br.defaultConfiguration.level).toBe("note"); // CSS_BORDER_RADIUS severity "info" → "note"
       expect(br.fullDescription.text).toContain("Fix:"); // why + howToFix composed
       const a11y = driver.rules.find((r: { id: string }) => r.id === "IMG_MISSING_ALT");
-      expect(a11y.helpUri).toBeUndefined(); // a11y rules have no references
+      expect(a11y.helpUri).toMatch(/^https:\/\//); // a11y rules now carry curated references
 
       const results = doc.runs[0].results;
       const flex = results.find((r: { ruleId: string }) => r.ruleId === "CSS_FLEXBOX");
