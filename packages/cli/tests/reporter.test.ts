@@ -20,6 +20,20 @@ const rr: RunResult = {
   ],
 };
 
+const rrExplain: RunResult = {
+  results: [
+    {
+      path: "e.html",
+      result: {
+        score: 90,
+        issues: [
+          { ruleId: "IMG_MISSING_ALT", severity: "warning", category: "accessibility", message: "<img> is missing an alt attribute.", line: 2 },
+        ],
+      },
+    },
+  ],
+};
+
 describe("reporter", () => {
   it("text: sorted-by-path finding lines + readError + summary", () => {
     const out = format(rr, "text");
@@ -157,5 +171,22 @@ describe("format: baseline", () => {
     const err = sarif.runs[0].results.find((r: { message?: { text?: string } }) => r.message?.text === "ENOENT: gone");
     expect(err).toBeTruthy();
     expect(err.level).toBe("error");
+  });
+});
+
+describe("format: --explain (text)", () => {
+  it("appends why/fix/see under a fired issue when explain=true", () => {
+    const out = format(rrExplain, "text", true);
+    expect(out).toContain("e.html:2:1  IMG_MISSING_ALT  warning");
+    expect(out).toContain("  why:");
+    expect(out).toContain("  fix:");
+    expect(out).toContain("  see:");
+  });
+
+  it("omits why/fix/see by default", () => {
+    const out = format(rrExplain, "text");
+    expect(out).not.toContain("  why:");
+    expect(out).not.toContain("  fix:");
+    expect(out).not.toContain("  see:");
   });
 });

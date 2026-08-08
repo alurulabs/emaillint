@@ -78,7 +78,7 @@ async function main(): Promise<void> {
     rr.baseline = outcome;
   }
 
-  process.stdout.write(`${format(rr, opts.format)}\n`);
+  process.stdout.write(`${format(rr, opts.format, opts.explain)}\n`);
   process.exit(exitCode(rr));
 }
 

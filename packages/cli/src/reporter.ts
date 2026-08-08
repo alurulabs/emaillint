@@ -1,18 +1,29 @@
 // packages/cli/src/reporter.ts
 import type { RunResult, Format, FileResult, BaselineOutcome } from "./types.js";
 import { relative, isAbsolute } from "node:path";
-import { getCompatDataVersion, getRules } from "emaillint-core";
+import { getCompatDataVersion, getRules, getRule, getReferences } from "emaillint-core";
 import { VERSION } from "./version.js";
 const REPO_URL = "https://github.com/alurulabs/emaillint";
 
-export function format(rr: RunResult, fmt: Format): string {
+export function format(rr: RunResult, fmt: Format, explain = false): string {
   const sorted: FileResult[] = [...rr.results].sort((x, y) => (x.path < y.path ? -1 : x.path > y.path ? 1 : 0));
   if (fmt === "json") return toJson(sorted, rr.clients, rr.baseline);
   if (fmt === "sarif") return toSarif(sorted, rr.clients, rr.baseline);
-  return toText(sorted, rr.baseline);
+  return toText(sorted, rr.baseline, explain);
 }
 
-function toText(results: FileResult[], baseline?: BaselineOutcome): string {
+function explainLines(ruleId: string): string[] {
+  const rule = getRule(ruleId);
+  if (!rule) return [];
+  const refs = getReferences(rule);
+  const lines = [`  why:  ${rule.why}`, `  fix:  ${rule.howToFix}`];
+  refs.forEach((ref, i) => {
+    lines.push(`${i === 0 ? "  see:  " : "        "}${ref.title} (${ref.url})`);
+  });
+  return lines;
+}
+
+function toText(results: FileResult[], baseline?: BaselineOutcome, explain = false): string {
   const lines: string[] = [];
   if (baseline?.mode === "check") {
     for (const f of results) {
@@ -23,6 +34,7 @@ function toText(results: FileResult[], baseline?: BaselineOutcome): string {
       const loc = s.line ? `${s.line}:${s.column ?? 1}  ` : "";
       const xn = ne.count > 1 ? `  x${ne.count}` : "";
       lines.push(`${ne.path}:${loc}${s.ruleId}  new  ${s.message}${xn}  (example location)`);
+      if (explain) lines.push(...explainLines(s.ruleId));
     }
     lines.push(`${baseline.newErrors.length} new error(s); ${baseline.suppressed} known (suppressed)`);
     if (baseline.compatWarning) lines.push(`warning: ${baseline.compatWarning}`);
@@ -37,6 +49,7 @@ function toText(results: FileResult[], baseline?: BaselineOutcome): string {
       else info++;
       const loc = is.line ? `${is.line}:${is.column ?? 1}  ` : "";
       lines.push(`${f.path}:${loc}${is.ruleId}  ${is.severity}  ${is.message}`);
+      if (explain) lines.push(...explainLines(is.ruleId));
     }
   }
   const total = errors + warnings + info;
