@@ -6,7 +6,7 @@ import { CLIENT_IDS, CLIENT_PRESETS, PROFILES } from "emaillint-core";
 export class UsageError extends Error {}
 
 export function parseArgs(argv: string[]): CliOptions {
-  const opts: CliOptions = { paths: [], format: "text", rules: {}, clientIds: [], help: false, version: false, baselinePath: undefined, updateBaselinePath: undefined };
+  const opts: CliOptions = { paths: [], format: "text", rules: {}, clientIds: [], help: false, version: false, baselinePath: undefined, updateBaselinePath: undefined, explain: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-h" || a === "--help") { opts.help = true; continue; }
@@ -74,6 +74,7 @@ export function parseArgs(argv: string[]): CliOptions {
       opts.profile = v as ProfileName;
       continue;
     }
+    if (a === "--explain") { opts.explain = true; continue; }
     if (a.startsWith("--")) throw new UsageError(`unknown flag: ${a}`);
     opts.paths.push(a);
   }

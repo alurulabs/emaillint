@@ -13,6 +13,7 @@ export interface CliOptions {
   baselinePath?: string;       // --baseline [path]
   updateBaselinePath?: string; // --update-baseline [path]
   profile?: ProfileName;       // --profile [name]
+  explain: boolean;            // --explain (text only)
 }
 
 export type FileResult = { path: string } & (

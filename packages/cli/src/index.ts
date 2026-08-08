@@ -15,6 +15,7 @@ const USAGE = `emaillint <paths...> [options]
   --preset <name>             target a client preset (outlook|gmail|apple-mail|yahoo|all)
   --clients <id,id,...>       target specific caniemail client IDs (see: emaillint clients)
   --profile <name>            severity policy: recommended | strict | relaxed
+  --explain                   text only: show why / how-to-fix / references under each finding
   --baseline <path>           fail CI only on new errors vs a committed baseline snapshot
   --update-baseline <path>    write/refresh the baseline snapshot
   -h, --help                  show help
