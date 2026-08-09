@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { analyze, getRule, getRules, validateRules } from "../src/engine.js";
+import { getReferences } from "../src/rules/util.js";
 import { CLIENT_IDS } from "../src/rules/presets.js";
 import type { EmailRule } from "../src/types/index.js";
 
@@ -88,6 +89,32 @@ describe("validateRules", () => {
 
   it("accepts a well-formed compat rule", () => {
     expect(() => validateRules([compatBase])).not.toThrow();
+  });
+
+  it("accepts top-level references on a non-compat rule", () => {
+    expect(() =>
+      validateRules([{ ...base, id: "AAA", references: [{ title: "t", url: "https://x.example" }] }]),
+    ).not.toThrow();
+  });
+
+  it("rejects a non-https top-level reference", () => {
+    expect(() =>
+      validateRules([{ ...base, id: "AAA", references: [{ title: "t", url: "http://x" }] }]),
+    ).toThrow(/https/);
+  });
+
+  it("rejects a duplicate top-level reference URL", () => {
+    expect(() =>
+      validateRules([
+        {
+          ...base, id: "AAA",
+          references: [
+            { title: "a", url: "https://x.example" },
+            { title: "b", url: "https://x.example" },
+          ],
+        },
+      ]),
+    ).toThrow(/Duplicate reference/);
   });
 });
 
@@ -224,5 +251,23 @@ describe("analyze client filtering", () => {
     const def = analyze(html);
     const all = analyze(html, { clients: [...CLIENT_IDS] });
     expect(all.issues.map((i) => i.ruleId).sort()).toEqual(def.issues.map((i) => i.ruleId).sort());
+  });
+});
+
+describe("non-compat rule references", () => {
+  const NON_COMPAT_IDS = [
+    "IMG_MISSING_ALT", "HEADING_EMPTY", "HTML_MISSING_LANG", "HTML_MISSING_TITLE",
+    "LINK_EMPTY_TEXT", "BASE64_IMAGE", "HTML_SIZE_EXCEEDED",
+    "DUPLICATE_ID", "EMPTY_LINK", "HTML_MISSING_DOCTYPE",
+  ];
+
+  it("every non-compat rule has at least one curated https reference", () => {
+    for (const id of NON_COMPAT_IDS) {
+      const rule = getRule(id);
+      expect(rule, `${id} not found in registry`).toBeTruthy();
+      const refs = getReferences(rule!);
+      expect(refs.length, `${id} has no references`).toBeGreaterThan(0);
+      for (const ref of refs) expect(ref.url).toMatch(/^https:\/\//);
+    }
   });
 });

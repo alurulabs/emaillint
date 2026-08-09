@@ -24,7 +24,6 @@ export interface Issue {
   severity: Severity;
   category: Category;
   message: string;
-  explanation?: string;
   selector?: string;
   line?: number;
   column?: number;
@@ -150,6 +149,7 @@ export interface EmailRule {
   description: string;
   why: string;
   howToFix: string;
+  references?: Reference[];
   since?: string;
   compatibility?: CompatibilityMeta;
   check(context: EmailContext): Issue[];

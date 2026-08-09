@@ -1,18 +1,30 @@
 // packages/cli/src/reporter.ts
 import type { RunResult, Format, FileResult, BaselineOutcome } from "./types.js";
 import { relative, isAbsolute } from "node:path";
-import { getCompatDataVersion, getRules } from "emaillint-core";
+import { getCompatDataVersion, getRules, getRule, getReferences } from "emaillint-core";
+import type { Reference } from "emaillint-core";
 import { VERSION } from "./version.js";
 const REPO_URL = "https://github.com/alurulabs/emaillint";
 
-export function format(rr: RunResult, fmt: Format): string {
+export function format(rr: RunResult, fmt: Format, explain = false): string {
   const sorted: FileResult[] = [...rr.results].sort((x, y) => (x.path < y.path ? -1 : x.path > y.path ? 1 : 0));
   if (fmt === "json") return toJson(sorted, rr.clients, rr.baseline);
   if (fmt === "sarif") return toSarif(sorted, rr.clients, rr.baseline);
-  return toText(sorted, rr.baseline);
+  return toText(sorted, rr.baseline, explain);
 }
 
-function toText(results: FileResult[], baseline?: BaselineOutcome): string {
+function explainLines(ruleId: string): string[] {
+  const rule = getRule(ruleId);
+  if (!rule) return [];
+  const refs = getReferences(rule);
+  const lines = [`  why:  ${rule.why}`, `  fix:  ${rule.howToFix}`];
+  refs.forEach((ref, i) => {
+    lines.push(`${i === 0 ? "  see:  " : "        "}${ref.title} (${ref.url})`);
+  });
+  return lines;
+}
+
+function toText(results: FileResult[], baseline?: BaselineOutcome, explain = false): string {
   const lines: string[] = [];
   if (baseline?.mode === "check") {
     for (const f of results) {
@@ -23,6 +35,7 @@ function toText(results: FileResult[], baseline?: BaselineOutcome): string {
       const loc = s.line ? `${s.line}:${s.column ?? 1}  ` : "";
       const xn = ne.count > 1 ? `  x${ne.count}` : "";
       lines.push(`${ne.path}:${loc}${s.ruleId}  new  ${s.message}${xn}  (example location)`);
+      if (explain) lines.push(...explainLines(s.ruleId));
     }
     lines.push(`${baseline.newErrors.length} new error(s); ${baseline.suppressed} known (suppressed)`);
     if (baseline.compatWarning) lines.push(`warning: ${baseline.compatWarning}`);
@@ -37,11 +50,43 @@ function toText(results: FileResult[], baseline?: BaselineOutcome): string {
       else info++;
       const loc = is.line ? `${is.line}:${is.column ?? 1}  ` : "";
       lines.push(`${f.path}:${loc}${is.ruleId}  ${is.severity}  ${is.message}`);
+      if (explain) lines.push(...explainLines(is.ruleId));
     }
   }
   const total = errors + warnings + info;
   lines.push(`${results.length} files, ${total} issues (${errors} errors, ${warnings} warnings, ${info} info)`);
   return lines.join("\n");
+}
+
+type RuleSummary = {
+  name: string;
+  category: string;
+  why: string;
+  howToFix: string;
+  references: Reference[];
+};
+
+function buildRulesMap(results: FileResult[], baseline?: BaselineOutcome): Record<string, RuleSummary> {
+  const ids = new Set<string>();
+  for (const f of results) {
+    if ("result" in f) for (const is of f.result.issues) ids.add(is.ruleId);
+  }
+  // Defensive: results may one day drop baseline-suppressed issues (SARIF already
+  // does), so collect newError ruleIds explicitly to keep the rules map complete.
+  if (baseline?.mode === "check") for (const ne of baseline.newErrors) ids.add(ne.sample.ruleId);
+  const map: Record<string, RuleSummary> = {};
+  for (const r of getRules()) {
+    if (ids.has(r.id)) {
+      map[r.id] = {
+        name: r.name,
+        category: r.category,
+        why: r.why,
+        howToFix: r.howToFix,
+        references: getReferences(r),
+      };
+    }
+  }
+  return map;
 }
 
 function toJson(results: FileResult[], clients?: string[], baseline?: BaselineOutcome): string {
@@ -59,6 +104,7 @@ function toJson(results: FileResult[], clients?: string[], baseline?: BaselineOu
     dataVersion: getCompatDataVersion(),
     files,
     totals: { files: results.length, errors, warnings, info },
+    rules: buildRulesMap(results, baseline),
   };
   if (clients && clients.length) payload.clients = clients;
   if (baseline) {
@@ -97,7 +143,7 @@ function toSarif(results: FileResult[], _clients?: string[], baseline?: Baseline
       defaultConfiguration: { level: LEVEL_MAP[r.severity] },
       properties: { category: r.category, severity: r.severity },
     };
-    const helpUri = r.compatibility?.references[0]?.url;
+    const helpUri = getReferences(r)[0]?.url;
     if (helpUri) descriptor.helpUri = helpUri;
     if (r.since) (descriptor.properties as Record<string, unknown>).since = r.since;
     return descriptor;
@@ -141,7 +187,7 @@ function toSarif(results: FileResult[], _clients?: string[], baseline?: Baseline
       sarifResults.push({
         ruleId: is.ruleId,
         level: LEVEL_MAP[is.severity],
-        message: { text: is.explanation ? `${is.message}\n${is.explanation}` : is.message },
+        message: { text: is.message },
         locations: [loc],
       });
     }

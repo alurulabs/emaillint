@@ -9,6 +9,9 @@ export const htmlMissingTitleRule: EmailRule = {
   description: "The email has no <title> element (or it is empty).",
   why: "<title> feeds the inbox preview/subject area and accessibility tools.",
   howToFix: "Add a concise <title> inside <head>.",
+  references: [
+    { title: "WCAG 2.4.2 Page Titled", url: "https://www.w3.org/WAI/WCAG21/Understanding/page-titled.html", kind: "spec" },
+  ],
   check(ctx) {
     const title = ctx.elements.find((e) => e.tagName === "title");
     // heading/link text capture is structural; title emptiness approximated by absence of #text sibling.

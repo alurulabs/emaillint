@@ -9,6 +9,9 @@ export const base64ImageRule: EmailRule = {
   description: "data: URIs inline images as base64, increasing size; many clients block them.",
   why: "Base64 data: URIs bloat the HTML and are blocked or stripped by many clients (notably Outlook), so the image does not render.",
   howToFix: "Host the image on a CDN and reference it by URL.",
+  references: [
+    { title: "MDN: Data URLs", url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs", kind: "official" },
+  ],
   since: "0.1.0",
   check(ctx) {
     return ctx.images

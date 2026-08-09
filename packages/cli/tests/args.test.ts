@@ -142,3 +142,15 @@ describe("parseArgs: --profile", () => {
     expect(parseArgs(["a.html"]).profile).toBeUndefined();
   });
 });
+
+describe("parseArgs: --explain", () => {
+  it("sets explain=true with --explain", () => {
+    expect(parseArgs(["x.html", "--explain"]).explain).toBe(true);
+  });
+  it("defaults to false when omitted", () => {
+    expect(parseArgs(["x.html"]).explain).toBe(false);
+  });
+  it("parses alongside other flags", () => {
+    expect(parseArgs(["x.html", "--format", "json", "--explain"]).explain).toBe(true);
+  });
+});

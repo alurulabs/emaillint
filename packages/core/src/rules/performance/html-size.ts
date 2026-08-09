@@ -12,6 +12,9 @@ export const htmlSizeRule: EmailRule = {
   description: "Large HTML may be clipped by Gmail (~102KB) and other clients.",
   why: "Gmail clips messages larger than ~102KB, truncating content and breaking open/conversion tracking.",
   howToFix: "Inline only essential CSS, remove unused markup, and minify the HTML to stay below the threshold.",
+  references: [
+    { title: "email-bugs: Gmail clips emails over 102KB", url: "https://github.com/hteumeuleu/email-bugs/issues/41", kind: "article" },
+  ],
   since: "0.1.0",
   check(ctx) {
     if (ctx.sizeBytes > ERROR_BYTES) {

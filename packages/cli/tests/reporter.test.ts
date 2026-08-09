@@ -20,6 +20,20 @@ const rr: RunResult = {
   ],
 };
 
+const rrExplain: RunResult = {
+  results: [
+    {
+      path: "e.html",
+      result: {
+        score: 90,
+        issues: [
+          { ruleId: "IMG_MISSING_ALT", severity: "warning", category: "accessibility", message: "<img> is missing an alt attribute.", line: 2 },
+        ],
+      },
+    },
+  ],
+};
+
 describe("reporter", () => {
   it("text: sorted-by-path finding lines + readError + summary", () => {
     const out = format(rr, "text");
@@ -47,6 +61,20 @@ describe("reporter", () => {
     expect(j0.clients).toBeUndefined();
   });
 
+  it("json: includes a fired-only rules map with remediation", () => {
+    const j = JSON.parse(format(rr, "json"));
+    expect(j.rules).toBeDefined();
+    expect(Object.keys(j.rules).sort()).toEqual(["CSS_FLEXBOX", "SCRIPT_ELEMENT"]);
+    expect(j.rules.IMG_MISSING_ALT).toBeUndefined(); // did not fire
+    expect(j.rules.SCRIPT_ELEMENT).toMatchObject({
+      name: expect.any(String),
+      category: expect.any(String),
+      why: expect.any(String),
+      howToFix: expect.any(String),
+    });
+    expect(Array.isArray(j.rules.SCRIPT_ELEMENT.references)).toBe(true);
+  });
+
   it("sarif: produces a 2.1.0 doc with rules + results, relativized paths, mapped levels", () => {
     const orig = process.env.GITHUB_WORKSPACE;
     process.env.GITHUB_WORKSPACE = "/repo";
@@ -69,7 +97,7 @@ describe("reporter", () => {
       expect(br.defaultConfiguration.level).toBe("note"); // CSS_BORDER_RADIUS severity "info" → "note"
       expect(br.fullDescription.text).toContain("Fix:"); // why + howToFix composed
       const a11y = driver.rules.find((r: { id: string }) => r.id === "IMG_MISSING_ALT");
-      expect(a11y.helpUri).toBeUndefined(); // a11y rules have no references
+      expect(a11y.helpUri).toMatch(/^https:\/\//); // a11y rules now carry curated references
 
       const results = doc.runs[0].results;
       const flex = results.find((r: { ruleId: string }) => r.ruleId === "CSS_FLEXBOX");
@@ -157,5 +185,69 @@ describe("format: baseline", () => {
     const err = sarif.runs[0].results.find((r: { message?: { text?: string } }) => r.message?.text === "ENOENT: gone");
     expect(err).toBeTruthy();
     expect(err.level).toBe("error");
+  });
+
+  it("json: rules map is populated under baseline-check", () => {
+    const json = JSON.parse(format(baselineRR as never, "json"));
+    expect(json.rules).toBeDefined();
+    expect(json.rules.SCRIPT_ELEMENT).toBeDefined();
+    expect(json.rules.SCRIPT_ELEMENT.howToFix).toEqual(expect.any(String));
+  });
+});
+
+describe("format: --explain (text)", () => {
+  it("appends why/fix/see under a fired issue when explain=true", () => {
+    const out = format(rrExplain, "text", true);
+    expect(out).toContain("e.html:2:1  IMG_MISSING_ALT  warning");
+    expect(out).toContain("  why:");
+    expect(out).toContain("  fix:");
+    expect(out).toContain("  see:");
+  });
+
+  it("omits why/fix/see by default", () => {
+    const out = format(rrExplain, "text");
+    expect(out).not.toContain("  why:");
+    expect(out).not.toContain("  fix:");
+    expect(out).not.toContain("  see:");
+  });
+
+  it("renders multiple references with a see: label then continuation lines", () => {
+    // CSS_EXTERNAL_FONT is the one compat rule whose generated references have
+    // multiple entries (2), exercising the i > 0 continuation indent in explainLines.
+    const rrMulti: RunResult = {
+      results: [
+        {
+          path: "m.html",
+          result: {
+            score: 80,
+            issues: [
+              { ruleId: "CSS_EXTERNAL_FONT", severity: "warning", category: "compatibility", message: "External font (@font-face) has limited email client support.", line: 1 },
+            ],
+          },
+        },
+      ],
+    };
+    const out = format(rrMulti, "text", true);
+    const seeLines = out.split("\n").filter((l) => l.startsWith("  see:  "));
+    expect(seeLines.length).toBe(1); // exactly one labeled see: line
+    // at least one further reference line exists, indented (no see: label)
+    expect(out.split("\n").filter((l) => /^        \S/.test(l)).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("enriches new errors under baseline-check when explain=true", () => {
+    const sample = { ruleId: "SCRIPT_ELEMENT", severity: "error", category: "invalid", message: "<script> not supported.", line: 3, column: 1 };
+    const rrBase: RunResult = {
+      results: [{ path: "t.html", result: { score: 50, issues: [sample] } }],
+      baseline: { mode: "check", newErrors: [{ path: "t.html", fingerprint: "SCRIPT_ELEMENT#script#", count: 1, sample }], suppressed: 0 },
+    };
+    const out = format(rrBase, "text", true);
+    expect(out).toContain("SCRIPT_ELEMENT");
+    expect(out).toContain("  why:");
+    expect(out).toContain("  fix:");
+  });
+
+  it("is a no-op for json (rules map is always present regardless)", () => {
+    const j = JSON.parse(format(rrExplain, "json", true));
+    expect(j.rules.IMG_MISSING_ALT).toBeDefined();
   });
 });
