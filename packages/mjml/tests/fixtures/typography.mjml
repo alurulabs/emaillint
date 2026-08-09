@@ -1,0 +1,12 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-text font-family="Helvetica, Arial, sans-serif" font-size="14px" color="#333333"/>
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section><mj-column>
+      <mj-text><h1>Heading</h1><p>Paragraph text.</p></mj-text>
+    </mj-column></mj-section>
+  </mj-body>
+</mjml>

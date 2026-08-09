@@ -1,0 +1,27 @@
+<mjml>
+  <mj-head>
+    <mj-title>Cerberus-style newsletter</mj-title>
+    <mj-preview>Preview text goes here</mj-preview>
+    <mj-attributes>
+      <mj-text font-family="Helvetica, Arial, sans-serif" font-size="16px" color="#222222" line-height="1.5"/>
+      <mj-button background-color="#222222" font-size="16px" border-radius="4px"/>
+    </mj-attributes>
+  </mj-head>
+  <mj-body width="600px" background-color="#eeeeee">
+    <mj-section padding="20px"><mj-column>
+      <mj-image src="https://example.com/header.png" alt="Newsletter" width="200px" align="center"></mj-image>
+    </mj-column></mj-section>
+    <mj-section background-color="#ffffff" padding="30px"><mj-column>
+      <mj-text><h2>This week</h2></mj-text>
+      <mj-text>A short paragraph summarizing the story, with a clear call to action.</mj-text>
+      <mj-button href="https://example.com/read" background-color="#3366cc">Read more</mj-button>
+    </mj-column></mj-section>
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column width="50%"><mj-text><strong>Left column</strong><br/>Detail.</mj-text></mj-column>
+      <mj-column width="50%"><mj-text><strong>Right column</strong><br/>Detail.</mj-text></mj-column>
+    </mj-section>
+    <mj-section padding="20px"><mj-column>
+      <mj-text align="center" font-size="12px" color="#999999">Unsubscribe | View in browser</mj-text>
+    </mj-column></mj-section>
+  </mj-body>
+</mjml>
