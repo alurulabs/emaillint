@@ -62,9 +62,11 @@ describe("lint option pass-through", () => {
     expect(without.issues.some((i) => i.ruleId === "CSS_BORDER_RADIUS")).toBe(true);
   });
 
-  it("passes clients filter to analyze", async () => {
+  it("passes clients filter to analyze (compat rule dropped under a supporting client)", async () => {
     const filtered = await lint(BUTTON_MJML, { clients: ["gmail-desktop-webmail"] });
     const unfiltered = await lint(BUTTON_MJML);
-    expect(filtered.issues.length).toBeLessThanOrEqual(unfiltered.issues.length);
+    // CSS_BORDER_RADIUS is supported in gmail-desktop-webmail, so it is dropped under that scope.
+    expect(unfiltered.issues.some((i) => i.ruleId === "CSS_BORDER_RADIUS")).toBe(true);
+    expect(filtered.issues.some((i) => i.ruleId === "CSS_BORDER_RADIUS")).toBe(false);
   });
 });
