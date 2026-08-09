@@ -1,0 +1,47 @@
+{
+  "name": "@emaillint/mjml",
+  "version": "0.1.0",
+  "description": "Lint MJML source with emaillint-core. Renders MJML to HTML, then analyzes.",
+  "license": "MIT",
+  "author": "alurulabs",
+  "keywords": ["email", "html-email", "mjml", "lint", "linter", "static-analysis", "compatibility"],
+  "homepage": "https://github.com/alurulabs/emaillint#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alurulabs/emaillint.git",
+    "directory": "packages/mjml"
+  },
+  "bugs": "https://github.com/alurulabs/emaillint/issues",
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
+  "files": ["dist"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "emaillint-core": "^0.13.0"
+  },
+  "peerDependencies": {
+    "mjml": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/mjml": "^5.0.0",
+    "@types/node": "^26.1.2",
+    "mjml": "^5.4.0",
+    "tsx": "^4.23.4",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  }
+}
