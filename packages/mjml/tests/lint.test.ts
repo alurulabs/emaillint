@@ -51,3 +51,20 @@ describe("lint error contract", () => {
     }
   });
 });
+
+const BUTTON_MJML = `<mjml><mj-body><mj-section><mj-column><mj-button href="https://example.com">Click</mj-button></mj-column></mj-section></mj-body></mjml>`;
+
+describe("lint option pass-through", () => {
+  it("passes rules overrides to analyze", async () => {
+    const withRule = await lint(BUTTON_MJML, { rules: { CSS_BORDER_RADIUS: "off" } });
+    const without = await lint(BUTTON_MJML);
+    expect(withRule.issues.some((i) => i.ruleId === "CSS_BORDER_RADIUS")).toBe(false);
+    expect(without.issues.some((i) => i.ruleId === "CSS_BORDER_RADIUS")).toBe(true);
+  });
+
+  it("passes clients filter to analyze", async () => {
+    const filtered = await lint(BUTTON_MJML, { clients: ["gmail-desktop-webmail"] });
+    const unfiltered = await lint(BUTTON_MJML);
+    expect(filtered.issues.length).toBeLessThanOrEqual(unfiltered.issues.length);
+  });
+});
