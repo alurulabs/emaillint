@@ -3,8 +3,9 @@ import { analyze } from "emaillint-core";
 import type { AnalyzeOptions, AnalysisResult } from "emaillint-core";
 
 // validationLevel "skip": emaillint analyzes rendered HTML only; MJML source
-// validation is outside this adapter's scope. (Task 4 verifies the rendered HTML
-// under "skip" equals the default for inputs that render.)
+// validation is outside this adapter's scope. Inputs that render produce
+// identical HTML under "skip" and the default "soft" level; "skip" avoids
+// spurious validation errors reaching emaillint.
 const RENDER_OPTIONS = { validationLevel: "skip" as const };
 
 async function renderInternal(source: string): Promise<string> {
