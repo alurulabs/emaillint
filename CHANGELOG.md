@@ -5,6 +5,23 @@ the `analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
+### Added
+- **Remediation UX** - `--explain` CLI text flag appends per-finding `why` /
+  `howToFix` / `see:` (reference) lines; the JSON reporter gains a fired-only
+  top-level `rules` map (`name` / `category` / `why` / `howToFix` /
+  `references`); SARIF rule descriptors now set `helpUri` for non-compat rules
+  too. Curated external references (WCAG for accessibility, MDN for quality,
+  size/clipping guidance for performance) added to all 10 non-compat rules.
+  `getReferences(rule)` is the unified accessor and a new public export from
+  `emaillint-core`; `validateRules` extends its https + no-duplicate checks to
+  top-level references. Default text output is unchanged. See
+  `docs/superpowers/specs/2026-08-07-remediation-ux-design.md`.
+
+### Removed
+- **`Issue.explanation` field** - plumbed through `makeIssue` and the `Issue`
+  type and read by one SARIF branch, but populated by no rule. Pre-1.0 removal
+  of an unused optional field; `howToFix` text remains the remediation path.
+
 ## [0.13.0] - 2026-08-06
 
 ### Added
