@@ -13,3 +13,6 @@ docs/superpowers/
 
 # Internal planning/QA docs — local only, not published
 docs/calibration.md
+
+# npm pack artifacts
+*.tgz
