@@ -1,0 +1,8 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column><mj-text>Left</mj-text></mj-column>
+      <mj-column><mj-text>Right</mj-text></mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "npm run build --workspace emaillint-core && npm run build --workspace @emaillint/cli",
+    "build": "npm run build --workspace emaillint-core && npm run build --workspace @emaillint/cli && npm run build --workspace @emaillint/mjml",
     "test": "npm run build && npm test --workspaces",
     "typecheck": "npm run build --workspace emaillint-core && npm run typecheck --workspaces"
   }

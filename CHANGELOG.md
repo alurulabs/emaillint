@@ -16,6 +16,11 @@ the `analyze()` options shape may change before 1.0.
   `emaillint-core`; `validateRules` extends its https + no-duplicate checks to
   top-level references. Default text output is unchanged. See
   `docs/superpowers/specs/2026-08-07-remediation-ux-design.md`.
+- **`@emaillint/mjml`** - framework adapter that renders MJML source to HTML
+  (`mjml2html`, peer dep) and analyzes it with `emaillint-core`. One async
+  function `lint(source, options?)`; no CLI, no MJML-specific rules. First
+  framework adapter; react-email and Maizzle are gated on adoption. See
+  `docs/superpowers/specs/2026-08-09-emaillint-mjml-adapter-design.md`.
 
 ### Removed
 - **`Issue.explanation` field** - plumbed through `makeIssue` and the `Issue`

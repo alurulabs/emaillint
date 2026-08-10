@@ -1,0 +1,7 @@
+<mjml>
+  <mj-body>
+    <mj-section><mj-column>
+      <mj-image src="https://example.com/logo.png" width="200px"></mj-image>
+    </mj-column></mj-section>
+  </mj-body>
+</mjml>

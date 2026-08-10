@@ -1,0 +1,10 @@
+<mjml>
+  <mj-head><mj-style>/* outlook-friendly */</mj-style></mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+        <mj-button background-color="#3366cc" href="https://example.com" inner-padding="16px">Act now</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
