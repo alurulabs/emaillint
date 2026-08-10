@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { join, resolve } from "node:path";
+import { getRules, getReferences } from "emaillint-core";
 
 const pexec = promisify(execFile);
 const BIN = resolve(import.meta.dirname, "..", "dist", "index.js");
@@ -47,6 +48,16 @@ describe("cli smoke (built bin)", () => {
     const { stdout } = await run(["presets"]);
     expect(stdout).toContain("outlook");
     expect(stdout).toContain("all");
+  });
+
+  it("'rules' subcommand dumps the catalog as JSON, exit 0", async () => {
+    const { stdout } = await run(["rules"]);
+    const catalog = JSON.parse(stdout);
+    expect(Array.isArray(catalog)).toBe(true);
+    expect(catalog).toHaveLength(getRules().length);
+    expect(catalog[0]).not.toHaveProperty("check");
+    expect(catalog[0].references).toEqual(getReferences(getRules()[0]));
+    expect(typeof catalog[0].id).toBe("string");
   });
 
   it("--format sarif emits a SARIF doc via the CLI entrypoint", async () => {
