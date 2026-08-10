@@ -4,7 +4,7 @@ import { run, NoFilesMatched } from "./run.js";
 import { format } from "./reporter.js";
 import { exitCode } from "./exit-code.js";
 import { runBaseline, BaselineNotFoundError, BaselineScopeError, BaselineParseError } from "./baseline.js";
-import { CLIENT_IDS, CLIENT_PRESETS, PROFILES } from "emaillint-core";
+import { CLIENT_IDS, CLIENT_PRESETS, PROFILES, getRules, getReferences } from "emaillint-core";
 import type { ClientId, ProfileName } from "emaillint-core";
 import { VERSION } from "./version.js";
 
@@ -19,12 +19,26 @@ const USAGE = `emaillint <paths...> [options]
   --baseline <path>           fail CI only on new errors vs a committed baseline snapshot
   --update-baseline <path>    write/refresh the baseline snapshot
   -h, --help                  show help
-  -v, --version               show version`;
+  -v, --version               show version
+
+Subcommands:
+  clients    list known email client IDs
+  presets    list compatibility presets
+  profiles   list severity profiles
+  rules      dump the rule catalog as JSON`;
 
 async function main(): Promise<void> {
   const sub = resolveCommand(process.argv[2]);
   if (sub === "clients") { process.stdout.write(`${[...CLIENT_IDS].join("\n")}\n`); process.exit(0); }
   if (sub === "presets") { process.stdout.write(`${Object.keys(CLIENT_PRESETS).join("\n")}\n`); process.exit(0); }
+  if (sub === "rules") {
+    const catalog = getRules().map((rule) => {
+      const { check, ...r } = rule; // check is the sole non-serializable field; drop it from the catalog
+      return { ...r, references: getReferences(rule) };
+    });
+    process.stdout.write(`${JSON.stringify(catalog, null, 2)}\n`);
+    process.exit(0);
+  }
   if (sub === "profiles") {
     const lines = (Object.entries(PROFILES) as [string, Record<string, string>][]).map(([name, shifts]) => {
       const parts = Object.entries(shifts).map(([from, to]) => `${from} -> ${to}`);

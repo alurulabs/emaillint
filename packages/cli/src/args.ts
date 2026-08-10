@@ -107,9 +107,10 @@ function parseClients(spec: string, opts: CliOptions): void {
   addClients(opts, ids);
 }
 
-// Subcommand dispatch: "clients"/"presets" as the first positional arg list
-// valid options. Anything else (paths, flags) returns null. Note: a file
-// literally named "clients" with no extension is not lintable via the CLI.
-export function resolveCommand(arg: string | undefined): "clients" | "presets" | "profiles" | null {
-  return arg === "clients" || arg === "presets" || arg === "profiles" ? arg : null;
+// Subcommand dispatch: "clients"/"presets"/"profiles"/"rules" as the first
+// positional arg list valid options. Anything else (paths, flags) returns
+// null. Note: a file literally named "clients" with no extension is not
+// lintable via the CLI.
+export function resolveCommand(arg: string | undefined): "clients" | "presets" | "profiles" | "rules" | null {
+  return arg === "clients" || arg === "presets" || arg === "profiles" || arg === "rules" ? arg : null;
 }
