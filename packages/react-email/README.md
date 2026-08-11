@@ -52,7 +52,7 @@ the adapter renders, core analyzes.
 
 | @emaillint/react-email | emaillint-core | @react-email/render | react          | Node   |
 | ---------------------- | -------------- | ------------------- | -------------- | ------ |
-| 0.1.x                  | 0.13.x         | 2.x                 | ^18 \|\| ^19  | >= 20  |
+| 0.1.x                  | 0.13.x         | >= 2.1              | ^18 \|\| ^19  | >= 20  |
 
 Pre-1.0: the API may change before 1.0.
 
