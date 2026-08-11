@@ -1,0 +1,50 @@
+{
+  "name": "@emaillint/react-email",
+  "version": "0.1.0",
+  "description": "Lint react-email templates with emaillint-core. Renders React elements to HTML via @react-email/render, then analyzes.",
+  "license": "MIT",
+  "author": "alurulabs",
+  "keywords": ["email", "html-email", "react-email", "react", "lint", "linter", "static-analysis", "compatibility"],
+  "homepage": "https://github.com/alurulabs/emaillint#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alurulabs/emaillint.git",
+    "directory": "packages/react-email"
+  },
+  "bugs": "https://github.com/alurulabs/emaillint/issues",
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
+  "files": ["dist"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "emaillint-core": "^0.13.0"
+  },
+  "peerDependencies": {
+    "@react-email/render": "^2.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@react-email/components": "^1.0.0",
+    "@react-email/render": "^2.0.0",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  }
+}
