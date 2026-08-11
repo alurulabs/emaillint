@@ -7,11 +7,12 @@ deterministic analysis on the result.
 ## Install
 
 ```bash
-npm install @emaillint/react-email @react-email/render react react-dom
+npm install @emaillint/react-email @react-email/components @react-email/render react react-dom
 ```
 
-`@react-email/render` and `react` are peer dependencies - this adapter lints
-against **your** installed renderer and React.
+`@react-email/render` and `react` are peer dependencies; `@react-email/components`
+is used in the example below. This adapter lints against **your** installed
+renderer and React.
 
 ## Use
 
