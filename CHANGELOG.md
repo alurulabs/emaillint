@@ -8,37 +8,12 @@ the `analyze()` options shape may change before 1.0.
 ## [0.14.0] - 2026-08-12
 
 ### Added
-- **Remediation UX** - `--explain` CLI text flag appends per-finding `why` /
-  `howToFix` / `see:` (reference) lines; the JSON reporter gains a fired-only
-  top-level `rules` map (`name` / `category` / `why` / `howToFix` /
-  `references`); SARIF rule descriptors now set `helpUri` for non-compat rules
-  too. Curated external references (WCAG for accessibility, MDN for quality,
-  size/clipping guidance for performance) added to all 10 non-compat rules.
-  `getReferences(rule)` is the unified accessor and a new public export from
-  `emaillint-core`; `validateRules` extends its https + no-duplicate checks to
-  top-level references. Default text output is unchanged. See
-  `docs/superpowers/specs/2026-08-07-remediation-ux-design.md`.
-- **`@emaillint/mjml`** - framework adapter that renders MJML source to HTML
-  (`mjml2html`, peer dep) and analyzes it with `emaillint-core`. One async
-  function `lint(source, options?)`; no CLI, no MJML-specific rules. First
-  framework adapter. Workspace-only; not yet published to npm. See
-  `docs/superpowers/specs/2026-08-09-emaillint-mjml-adapter-design.md`.
-- **`emaillint rules` subcommand** - `emaillint rules` prints the full rule
-  catalog as JSON, for websites, playgrounds, and IDE autocomplete. Sits on the
-  public `getRules()` / `getReferences()` accessors (no core changes); bare
-  array, `check` omitted, references resolved. Rounds out the metadata
-  subcommands (clients / presets / profiles / rules).
-- **`@emaillint/react-email`** - framework adapter that renders a React Email
-  element to HTML (`@react-email/render`, peer dep) and analyzes it with
-  `emaillint-core`. One async function `lint(element, options?)`; no CLI. Peer
-  floor `@react-email/render@^2.1.0` (2.0.0 silently returns fallback HTML on
-  render errors; 2.1.0 rejects). Workspace-only; not yet published to npm. See
-  `docs/superpowers/specs/2026-08-11-react-email-adapter-design.md`.
+- Remediation UX: `--explain` flag, JSON `rules` map, SARIF `helpUri` on all rules; `getReferences(rule)` now exported from `emaillint-core`.
+- Framework adapters `@emaillint/mjml` and `@emaillint/react-email` (render to HTML, then lint). Workspace-only, not on npm yet.
+- `emaillint rules` subcommand: rule catalog as JSON.
 
 ### Removed
-- **`Issue.explanation` field** - plumbed through `makeIssue` and the `Issue`
-  type and read by one SARIF branch, but populated by no rule. Pre-1.0 removal
-  of an unused optional field; `howToFix` text remains the remediation path.
+- `Issue.explanation` (never populated). Use `howToFix`.
 
 ## [0.13.0] - 2026-08-06
 
