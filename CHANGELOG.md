@@ -9,7 +9,7 @@ Notable changes to EmailLint. The engine is pre-stable; rule IDs and the
 
 ### Added
 - Remediation UX: `--explain` flag, JSON `rules` map, SARIF `helpUri` on all rules; `getReferences(rule)` now exported from `emaillint-core`.
-- Framework adapters `@emaillint/mjml` and `@emaillint/react-email` (render to HTML, then lint). Workspace-only, not on npm yet.
+- Framework adapters `@emaillint/mjml` and `@emaillint/react-email` (render to HTML, then lint), published at 0.1.0.
 - `emaillint rules` subcommand: rule catalog as JSON.
 
 ### Removed

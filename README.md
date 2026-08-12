@@ -244,5 +244,5 @@ npm run typecheck
 
 - `packages/core`: the analysis engine (this repo's focus)
 - `packages/cli`: the `@emaillint/cli` bin (`emaillint`); thin wrapper over core
-- `packages/mjml`, `packages/react-email`: framework adapters (render to HTML, then lint); workspace-only, not yet published to npm
+- `packages/mjml`, `packages/react-email`: framework adapters (render to HTML, then lint); `@emaillint/mjml` and `@emaillint/react-email` on npm
 - `.github/actions/emaillint`: composite GitHub Action that runs the CLI in CI
