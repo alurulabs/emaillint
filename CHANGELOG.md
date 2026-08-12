@@ -1,148 +1,75 @@
 # Changelog
 
-Notable changes to EmailLint. The engine is pre-stable; rule IDs and
-the `analyze()` options shape may change before 1.0.
+Notable changes to EmailLint. The engine is pre-stable; rule IDs and the
+`analyze()` options shape may change before 1.0.
 
 ## [Unreleased]
 
 ## [0.14.0] - 2026-08-12
 
 ### Added
-- **Remediation UX** - `--explain` CLI text flag appends per-finding `why` /
-  `howToFix` / `see:` (reference) lines; the JSON reporter gains a fired-only
-  top-level `rules` map (`name` / `category` / `why` / `howToFix` /
-  `references`); SARIF rule descriptors now set `helpUri` for non-compat rules
-  too. Curated external references (WCAG for accessibility, MDN for quality,
-  size/clipping guidance for performance) added to all 10 non-compat rules.
-  `getReferences(rule)` is the unified accessor and a new public export from
-  `emaillint-core`; `validateRules` extends its https + no-duplicate checks to
-  top-level references. Default text output is unchanged. See
-  `docs/superpowers/specs/2026-08-07-remediation-ux-design.md`.
-- **`@emaillint/mjml`** - framework adapter that renders MJML source to HTML
-  (`mjml2html`, peer dep) and analyzes it with `emaillint-core`. One async
-  function `lint(source, options?)`; no CLI, no MJML-specific rules. First
-  framework adapter. Workspace-only; not yet published to npm. See
-  `docs/superpowers/specs/2026-08-09-emaillint-mjml-adapter-design.md`.
-- **`emaillint rules` subcommand** - `emaillint rules` prints the full rule
-  catalog as JSON, for websites, playgrounds, and IDE autocomplete. Sits on the
-  public `getRules()` / `getReferences()` accessors (no core changes); bare
-  array, `check` omitted, references resolved. Rounds out the metadata
-  subcommands (clients / presets / profiles / rules).
-- **`@emaillint/react-email`** - framework adapter that renders a React Email
-  element to HTML (`@react-email/render`, peer dep) and analyzes it with
-  `emaillint-core`. One async function `lint(element, options?)`; no CLI. Peer
-  floor `@react-email/render@^2.1.0` (2.0.0 silently returns fallback HTML on
-  render errors; 2.1.0 rejects). Workspace-only; not yet published to npm. See
-  `docs/superpowers/specs/2026-08-11-react-email-adapter-design.md`.
+- Remediation UX: `--explain` flag, JSON `rules` map, SARIF `helpUri` on all rules; `getReferences(rule)` now exported from `emaillint-core`.
+- Framework adapters `@emaillint/mjml` and `@emaillint/react-email` (render to HTML, then lint). Workspace-only, not on npm yet.
+- `emaillint rules` subcommand: rule catalog as JSON.
 
 ### Removed
-- **`Issue.explanation` field** - plumbed through `makeIssue` and the `Issue`
-  type and read by one SARIF branch, but populated by no rule. Pre-1.0 removal
-  of an unused optional field; `howToFix` text remains the remediation path.
+- `Issue.explanation` (never populated). Use `howToFix`.
 
 ## [0.13.0] - 2026-08-06
 
 ### Added
-- **Severity profiles** - `--profile <recommended|strict|relaxed>` (CLI) and
-  `analyze(html, { profile })` (core). A named severity-tier shift over the
-  calibrated defaults: `recommended` preserves them, `strict` promotes every
-  warning to error, `relaxed` demotes every warning to info. Profiles never
-  create or remove diagnostics, only change severity; explicit `--rule`/`rules`
-  overrides win. New rules auto-participate. `PROFILES` and the profile names
-  are stable public API. Composes with `--baseline`. See
-  `docs/superpowers/specs/2026-08-05-severity-profiles-design.md`.
+- Severity profiles: `--profile <recommended|strict|relaxed>` (CLI) and `analyze(html, { profile })` (core). Shifts severity tiers without adding or removing diagnostics; explicit `--rule` overrides win. `PROFILES` and the profile names are stable public API; composes with `--baseline`.
 
 ### Fixed
-- **CLI executable** - npm 11 stripped the `bin` entry at publish time because the path was `./dist/index.js`; the published 0.12.0 CLI had no `emaillint` executable, breaking `npx`/global install. Path is now `dist/index.js`. (#24)
+- CLI bin path `./dist/index.js` -> `dist/index.js`; npm 11 had stripped it, breaking `npx`/global install in 0.12.0. (#24)
 
 ## [0.12.0] - 2026-08-04
 
 ### Added
-- **Baseline mode** - `--baseline <path>` / `--update-baseline <path>` (CLI) and
-  `createBaseline` / `diffAgainstBaseline` / `parseBaseline` (core). CI fails
-  only on error-severity issues not present in a committed snapshot, unlocking
-  adoption on legacy email codebases. Identity is an allowlist semantic
-  fingerprint (`ruleId` + tag + stable attributes, or `ruleId` + CSS
-  selector/property/value); the diff is count-based, so it catches duplicate-adds
-  a de-duplicating set would mask. `fingerprintVersion` tracks the identity
-  algorithm independently of the file schema. Errors only (mirrors `exitCode`);
-  client-scope guard fails closed; `compatDataVersion` drift warns. See
-  `docs/superpowers/specs/2026-08-03-baseline-mode-design.md`.
+- Baseline mode: `--baseline` / `--update-baseline` (CLI) and `createBaseline` / `diffAgainstBaseline` / `parseBaseline` (core). CI fails only on new error-severity issues via a committed semantic-fingerprint snapshot; unlocks legacy-codebase adoption.
 
 ### Changed
-- **`buildEmailContext` now exported** from `emaillint-core` - the baseline layer
-  re-parses each file to fingerprint its issues (the double-parse tradeoff; marked
-  `ponytail:` in `run.ts`).
+- `buildEmailContext` now exported from `emaillint-core`.
 
 ## [0.11.0] - 2026-08-03
 
-Breaking: removes the deprecated `KNOWN_CLIENTS` export and tightens
-`ClientStatus.client` from `string` to `ClientId`. First of the pre-1.0
-client-vocabulary cleanup; the engine remains pre-stable.
+Breaking (pre-1.0): removes deprecated `KNOWN_CLIENTS`; `ClientStatus.client` tightens `string` -> `ClientId`.
 
 ### Removed
-- **`KNOWN_CLIENTS`** (#18) - the deprecated hand-maintained client list (`packages/core/src/rules/clients.ts`) and its public export. Its ids (`outlook-com`, `gmail-web`, etc.) were divergent and never matched the generated vocabulary, and the list was never wired to any code path. The public client surface is now `ClientId`, `ClientEntry`, `CLIENTS`, `CLIENT_IDS`, `CLIENT_PRESETS`.
+- `KNOWN_CLIENTS` export (#18) - divergent hand-maintained list, never wired to any code path. Public client surface is now `ClientId`, `ClientEntry`, `CLIENTS`, `CLIENT_IDS`, `CLIENT_PRESETS`.
 
 ### Changed
-- **`ClientStatus.client` typed as `ClientId`** (#18) - was `string`; `ClientId` is now the only client-id type. Sits on a type-only cycle between `types/index.ts` and `generated/compat-data.ts` (both `import type`, erased at runtime).
-- **`CLIENT_IDS` sourced from generated `CLIENTS`** (#18) - was a parallel `COMPAT` flatMap derivation; now a single source of truth for the id set.
-- Both packages bumped 0.10.0 to 0.11.0; the cli workspace dependency `emaillint-core` moves `^0.10.0` to `^0.11.0`.
+- `ClientStatus.client`: `string` -> `ClientId` (#18).
+- `CLIENT_IDS` sourced from generated `CLIENTS` (single source of truth) (#18).
 
 ## [0.10.0] - 2026-08-02
 
 ### Added
-- **Client presets + scope-aware filtering** (#13) - `analyze(html, { clients })` drops compat issues fully supported across the selected clients; `--preset` / `--clients` CLI flags plus `clients` / `presets` subcommands; generated `ClientId` union.
-- **SARIF 2.1.0 output** (#13) - `--format sarif`, repo-relative paths; GitHub Code Scanning and Azure ready.
-- **Generated `CLIENTS` vocabulary** (#14) - id plus a composed `"Family Platform"` label per caniemail client, generated from `_data/nicenames.yml` by `sync-compat`. IDs and labels now share one source of truth with the compat snapshot. `KNOWN_CLIENTS` is `@deprecated` and will be removed in 1.0.
+- Client presets + scope-aware filtering (#13): `analyze(html, { clients })` drops compat issues fully supported across selected clients; `--preset` / `--clients` CLI flags plus `clients` / `presets` subcommands; generated `ClientId` union.
+- SARIF 2.1.0 output (#13): `--format sarif`, repo-relative paths.
+- Generated `CLIENTS` vocabulary (#14): id plus a `"Family Platform"` label per caniemail client, from `sync-compat`. `KNOWN_CLIENTS` `@deprecated` (removed in 0.11.0).
 
 ### Changed
-- `ClientEntry` type moved from `src/rules/clients.ts` into `src/types/index.ts` so the generated module has a stable type to import.
+- `ClientEntry` type moved into `src/types/index.ts`.
 
 ## [0.9.0] - 2026-07-31
 
-Initial public release: 39 rules, tunable severity, structured compatibility metadata, the `@emaillint/cli`, and the GitHub Action.
+Initial public release: 39 rules, tunable severity, structured compatibility metadata, `@emaillint/cli`, GitHub Action.
 
 ### Added
-- **CLI** - `@emaillint/cli` (bin `emaillint`): lint HTML from the command line
-  with `text`/`json` output, per-rule overrides
-  (`--rule ID=off|info|warning|error`), and exit code 1 on any `error`-severity
-  issue for CI gating.
-- **GitHub Action** - composite action (`.github/actions/emaillint`) that runs the
-  CLI in CI, plus a dogfood workflow (`.github/workflows/lint.yml`) that lints this
-  repo's own example emails.
-- Compatibility support matrices are now **derived from a vendored caniemail
-  snapshot** (pinned commit) instead of hand-authored. Coverage expanded from 3
-  hardcoded clients to ~40 client/platform pairs. `getCompatDataVersion()` returns
-  the pinned snapshot; every compatibility finding carries `dataVersion` and
-  `lastTested`. Refresh is a dev-only build step (`npm run sync-compat`), keeping
-  runtime offline and deterministic.
+- `@emaillint/cli` (bin `emaillint`): `text`/`json` output, per-rule severity overrides (`--rule ID=off|info|warning|error`), exit 1 on any `error`-severity issue for CI gating.
+- GitHub Action (`.github/actions/emaillint`) plus a dogfood workflow.
+- Compatibility matrices derived from a vendored, pinned caniemail snapshot (~40 client/platform pairs); `getCompatDataVersion()`, per-finding `dataVersion` / `lastTested`; refresh via dev-only `sync-compat` (runtime stays offline and deterministic).
+- `analyze(html, options?)` with `rules` map; rule metadata (`why`, `howToFix`, `since`, `compatibility`); `getRule(id)` / `getRules()`; immutable severity overrides.
 
 ### Changed
-- **Scoring model** - each rule's total penalty is capped at 15, and `info`
-  findings no longer penalize (`info = 0`). Fixes score saturation, where one
-  prolific rule could floor an otherwise fine email to 0.
-- `CSS_BORDER_RADIUS` downgraded `warning` → `info` (cosmetic: unsupported clients
-  render harmless square corners).
-- `CSS_BACKGROUND_IMAGE` downgraded `warning` → `info` when a VML fallback URL is
-  present.
+- Scoring: per-rule penalty capped at 15; `info` findings no longer penalize. Fixes saturation where one prolific rule could floor a fine email to 0.
+- `CSS_BORDER_RADIUS` `warning` -> `info`; `CSS_BACKGROUND_IMAGE` `warning` -> `info` with a VML fallback.
 
 ### Fixed
-- `CSS_EXTERNAL_FONT` / `LINK_STYLESHEET` double-counted the same font load;
-  font-authority dedup removes the duplicate finding.
-- `LINK_EMPTY_TEXT` false positive on links whose only content is an image with
-  `alt` text.
-
-Engine (39 rules; tunable severity; structured compatibility metadata):
-
-- `analyze(html, options?)` - optional `rules` map (`"off"` / `"info"` / `"warning"` / `"error"`).
-- New `invalid` category (error): `SCRIPT_ELEMENT`, `IFRAME_ELEMENT`, `CANVAS_ELEMENT`, `OBJECT_ELEMENT`, `EMBED_ELEMENT`, `FORM_ELEMENTS`.
-- 14 new CSS compatibility rules (grid, fixed/float positioning, transform, transition, animation, filter, backdrop-filter, calc, aspect-ratio, object-fit, mix-blend-mode, min/max/clamp, overflow) with per-client support matrices.
-- 4 new accessibility rules: `HTML_MISSING_LANG`, `HTML_MISSING_TITLE`, `LINK_EMPTY_TEXT`, `HEADING_EMPTY`.
-- 1 new quality rule: `HTML_MISSING_DOCTYPE`.
-- Parser: CSS normalization (property lowercased once), robust inline-style scanner (parens/quotes/comments), columns, doctype, headings, link text.
-- `getRule(id)` / `getRules()`; rule metadata (`why`, `howToFix`, `since`, `compatibility`); `KNOWN_CLIENTS` vocabulary; expanded startup `validateRules`.
-- Immutable severity overrides (issues are never mutated).
+- `CSS_EXTERNAL_FONT` / `LINK_STYLESHEET` font-load double-count (font-authority dedup).
+- `LINK_EMPTY_TEXT` false positive on image-only links with `alt`.
 
 ## [0.1.0] - 2026-07-21
 
-Initial engine: 11 rules, `analyze(html)` → `{ score, issues }`.
+Initial engine: 11 rules, `analyze(html)` -> `{ score, issues }`.
