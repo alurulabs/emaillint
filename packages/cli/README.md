@@ -47,7 +47,8 @@ all fails with a clear `no files matched` error.
 | `--help`, `-h` / `--version`, `-v` | Show help / print version. |
 
 Subcommands: `emaillint clients` / `presets` / `profiles` list the caniemail
-client IDs, the presets, and the severity profiles.
+client IDs, the presets, and the severity profiles; `emaillint rules` dumps
+the full rule catalog as JSON (for sites, playgrounds, IDE autocomplete).
 
 ### Severity profiles & baseline
 

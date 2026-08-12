@@ -84,6 +84,7 @@ emaillint emails/**/*.html
 emaillint email.html --format json
 emaillint email.html --rule CSS_BORDER_RADIUS=off
 emaillint email.html --profile strict          # warnings -> errors
+emaillint email.html --explain                  # why + how-to-fix + links per finding
 emaillint --update-baseline .emaillint-baseline.json emails/**/*.html
 emaillint --baseline .emaillint-baseline.json emails/**/*.html   # fail only on NEW errors
 ```
@@ -99,7 +100,9 @@ Exit code is **1 if any `error`-severity issue** (CI gating; under `--baseline`,
 only *new* errors). Warnings/info don't fail. Output formats: `text` (default),
 `json` (includes the `dataVersion` snapshot), and `sarif` (2.1.0, for GitHub
 Code Scanning). Severity profiles (`--profile`) set policy; baseline mode
-(`--baseline`) tolerates existing debt. The package name `emaillint` is squatted
+(`--baseline`) tolerates existing debt. `--explain` adds per-finding remediation
+text; `emaillint rules` / `clients` / `presets` / `profiles` dump metadata as
+JSON. The package name `emaillint` is squatted
 on npm, so the CLI ships as the scoped **`@emaillint/cli`** with bin
 **`emaillint`**.
 
@@ -241,4 +244,5 @@ npm run typecheck
 
 - `packages/core`: the analysis engine (this repo's focus)
 - `packages/cli`: the `@emaillint/cli` bin (`emaillint`); thin wrapper over core
+- `packages/mjml`, `packages/react-email`: framework adapters (render to HTML, then lint); workspace-only, not yet published to npm
 - `.github/actions/emaillint`: composite GitHub Action that runs the CLI in CI
