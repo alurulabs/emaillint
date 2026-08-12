@@ -1,14 +1,20 @@
 name: release
 
-# Publishing is tag-triggered. Pushing vX.Y.Z builds both packages, asserts the
-# tag matches the package versions and the CHANGELOG, publishes core then cli to
-# npm via Trusted Publishing (OIDC, tokenless) with provenance, and cuts the
-# GitHub Release from the CHANGELOG. Requires the npm Trusted Publisher config
-# for each package (repo=alurulabs/emaillint, workflow=release.yml).
+# Two triggers:
+#  - push tag vX.Y.Z: asserts the tag matches core/cli versions and the
+#    CHANGELOG, publishes core + cli (and any unpublished adapter) to npm via
+#    Trusted Publishing (OIDC, tokenless) with provenance, and cuts the GitHub
+#    Release from the CHANGELOG.
+#  - workflow_dispatch: "publish whatever is unpublished". Ships the framework
+#    adapters (@emaillint/mjml, @emaillint/react-email), which version
+#    independently of core/cli. Skips the version-check and Release steps.
+# Each package needs its npm Trusted Publisher config (repo=alurulabs/emaillint,
+# workflow=release.yml).
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write   # create the GitHub Release from the tag
@@ -28,6 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Verify version + CHANGELOG
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           CORE=$(jq -r .version packages/core/package.json)
           CLI=$(jq -r .version packages/cli/package.json)
@@ -57,7 +64,24 @@ jobs:
           else
             npm publish --provenance --access public --workspace @emaillint/cli
           fi
+      - name: Publish @emaillint/mjml (skip if already published)
+        run: |
+          VER=$(jq -r .version packages/mjml/package.json)
+          if npm view @emaillint/mjml@"$VER" version >/dev/null 2>&1; then
+            echo "@emaillint/mjml@$VER already published - skipping"
+          else
+            npm publish --provenance --access public --workspace @emaillint/mjml
+          fi
+      - name: Publish @emaillint/react-email (skip if already published)
+        run: |
+          VER=$(jq -r .version packages/react-email/package.json)
+          if npm view @emaillint/react-email@"$VER" version >/dev/null 2>&1; then
+            echo "@emaillint/react-email@$VER already published - skipping"
+          else
+            npm publish --provenance --access public --workspace @emaillint/react-email
+          fi
       - name: GitHub Release (create or update)
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           TAG=${GITHUB_REF#refs/tags/}
           VER=${TAG#v}
