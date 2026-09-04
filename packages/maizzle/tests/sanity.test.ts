@@ -8,5 +8,5 @@ describe("sanity", () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(100);
     expect(Array.isArray(result.issues)).toBe(true);
-  }, 30_000);
+  }, 30_000); // cold Vite SSR boot
 });
