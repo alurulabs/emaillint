@@ -11,7 +11,8 @@ npm install @emaillint/maizzle @maizzle/framework
 ```
 
 `@maizzle/framework` is a peer dependency; this adapter lints against **your**
-installed Maizzle.
+installed Maizzle. If your first render crashes, see
+[Known issue](#known-issue-fresh-maizzleframework612-install-crashes) below.
 
 ## Use
 
@@ -56,7 +57,8 @@ path), and no Maizzle-specific lint rules - the adapter renders, core analyzes.
 
 `postcss-merge-longhand@8.0.4` (a transitive dependency of `@maizzle/framework`)
 crashes on first render against `postcss-value-parser@4.2.0`. Until upstream
-fixes the publish, pin it for Maizzle only in your `package.json` (a flat
+ships a fixed `postcss-merge-longhand` (8.0.5 or a Maizzle patch), pin it for
+Maizzle only in your `package.json` (a flat
 override can break other packages that use v7 of the same plugin):
 
 ```json
