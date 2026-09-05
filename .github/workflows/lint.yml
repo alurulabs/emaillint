@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm run build        # builds emaillint-core then @emaillint/cli
+      - run: npm run build        # builds core, cli, and the framework adapters
       # Dogfood: prove the CLI passes a clean email AND flags a bad one.
       # (Two explicit steps so main-branch CI stays green while asserting both
       # directions — bad.html is intentionally bad.)
