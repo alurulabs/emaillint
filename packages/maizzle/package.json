@@ -1,0 +1,45 @@
+{
+  "name": "@emaillint/maizzle",
+  "version": "0.1.0",
+  "description": "Lint Maizzle templates with emaillint-core. Renders .vue templates to HTML via @maizzle/framework, then analyzes.",
+  "license": "MIT",
+  "author": "alurulabs",
+  "keywords": ["email", "html-email", "maizzle", "tailwind", "lint", "linter", "static-analysis", "compatibility"],
+  "homepage": "https://github.com/alurulabs/emaillint#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alurulabs/emaillint.git",
+    "directory": "packages/maizzle"
+  },
+  "bugs": "https://github.com/alurulabs/emaillint/issues",
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
+  "files": ["dist"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "emaillint-core": "^0.14.0"
+  },
+  "peerDependencies": {
+    "@maizzle/framework": "^6.1.0"
+  },
+  "devDependencies": {
+    "@maizzle/framework": "^6.1.0",
+    "@types/node": "^26.1.2",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  }
+}

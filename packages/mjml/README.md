@@ -42,7 +42,7 @@ adapter renders, core analyzes.
 | Package | Version |
 |---|---|
 | `@emaillint/mjml` | 0.1.x |
-| `emaillint-core` | 0.13.x |
+| `emaillint-core` | 0.14.x |
 | `mjml` | 5.x |
 | Node | >= 20 |
 

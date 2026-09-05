@@ -5,6 +5,9 @@ Notable changes to EmailLint. The engine is pre-stable; rule IDs and the
 
 ## [Unreleased]
 
+### Added
+- Framework adapter `@emaillint/maizzle`: `lint(templatePath, options?)` renders a Maizzle `.vue` template via `@maizzle/framework` (full Tailwind pipeline), then lints. Path input only; string input skips the CSS pipeline. README documents the scoped `postcss-merge-longhand` override needed while fresh `@maizzle/framework@6.1.2` installs crash upstream.
+
 ## [0.14.0] - 2026-08-12
 
 ### Added

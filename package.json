@@ -4,8 +4,13 @@
   "private": true,
   "type": "module",
   "workspaces": ["packages/*"],
+  "overrides": {
+    "@maizzle/framework": {
+      "postcss-merge-longhand": "8.0.3"
+    }
+  },
   "scripts": {
-    "build": "npm run build --workspace emaillint-core && npm run build --workspace @emaillint/cli && npm run build --workspace @emaillint/mjml && npm run build --workspace @emaillint/react-email",
+    "build": "npm run build --workspace emaillint-core && npm run build --workspace @emaillint/cli && npm run build --workspace @emaillint/mjml && npm run build --workspace @emaillint/react-email && npm run build --workspace @emaillint/maizzle",
     "test": "npm run build && npm test --workspaces",
     "typecheck": "npm run build --workspace emaillint-core && npm run typecheck --workspaces"
   }
