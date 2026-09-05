@@ -14,7 +14,7 @@ jobs:
       - run: npm run build        # builds core, cli, and the framework adapters
       # Dogfood: prove the CLI passes a clean email AND flags a bad one.
       # (Two explicit steps so main-branch CI stays green while asserting both
-      # directions — bad.html is intentionally bad.)
+      # directions - bad.html is intentionally bad.)
       - name: good.html is clean (CLI exits 0)
         run: node packages/cli/dist/index.js examples/emails/good.html
       - name: bad.html is flagged (CLI exits non-zero)
