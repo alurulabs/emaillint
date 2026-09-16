@@ -28,11 +28,11 @@
     "emaillint-core": "^0.14.0"
   },
   "peerDependencies": {
-    "@maizzle/framework": "^6.1.0"
+    "@maizzle/framework": "^6.1.4"
   },
   "devDependencies": {
-    "@maizzle/framework": "^6.1.0",
-    "@types/node": "^26.1.2",
+    "@maizzle/framework": "^6.1.4",
+    "@types/node": "^26.5.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },
