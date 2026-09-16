@@ -28,12 +28,12 @@
     "emaillint-core": "^0.14.0"
   },
   "peerDependencies": {
-    "mjml": "^5.4.0"
+    "mjml": "^5.4.1"
   },
   "devDependencies": {
     "@types/mjml": "^5.0.0",
-    "@types/node": "^26.1.2",
-    "mjml": "^5.4.0",
+    "@types/node": "^26.5.1",
+    "mjml": "^5.4.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },

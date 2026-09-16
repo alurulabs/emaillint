@@ -34,10 +34,10 @@
   "devDependencies": {
     "@react-email/components": "^1.0.0",
     "@react-email/render": "^2.1.0",
-    "@types/node": "^26.1.2",
-    "@types/react": "^19.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "@types/node": "^26.5.1",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },
